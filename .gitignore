@@ -45,10 +45,6 @@ data/
 *.db
 *.db-journal
 
-# Env
-.env.local
-.env.*.local
-
 # Playwright
 playwright-report/
 test-results/
