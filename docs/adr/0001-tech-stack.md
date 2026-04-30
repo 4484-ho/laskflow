@@ -12,7 +12,7 @@
 
 | カテゴリ | 採用技術 | 理由 |
 |---|---|---|
-| フレームワーク | Next.js 15 (App Router) | フルスタック。Server Components で初期表示高速化 |
+| フレームワーク | Next.js 16 (App Router) | フルスタック。Server Components で初期表示高速化 |
 | 言語 | TypeScript (strict) | 型安全性。個人開発でも品質を担保 |
 | DB | SQLite via Prisma | 個人利用。セットアップ不要。ファイル1つで完結 |
 | スタイリング | Tailwind CSS v4 | ユーティリティファースト。Linear ライクなダーク UI |

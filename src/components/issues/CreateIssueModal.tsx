@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useIssueStore } from '@/stores/issueStore'
 import { useUiStore } from '@/stores/uiStore'
 import type { IssuePriority } from '@/types'
@@ -21,8 +21,6 @@ export function CreateIssueModal() {
   const [projects, setProjects] = useState<Project[]>([])
   const [submitting, setSubmitting] = useState(false)
 
-  const inputRef = useRef<HTMLInputElement>(null)
-
   useEffect(() => {
     if (isCreateIssueModalOpen) {
       fetch('/api/projects')
@@ -31,7 +29,6 @@ export function CreateIssueModal() {
           setProjects(data)
           if (data.length > 0) setProjectId(data[0].id)
         })
-      setTimeout(() => inputRef.current?.focus(), 50)
     } else {
       setTitle('')
       setPriority('none')
@@ -62,7 +59,7 @@ export function CreateIssueModal() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
-            ref={inputRef}
+            autoFocus
             type="text"
             placeholder="Issue title"
             value={title}

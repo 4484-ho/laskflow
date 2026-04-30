@@ -3,8 +3,8 @@ import type { Project, ProjectStatus, CreateProjectInput } from '@/types'
 
 interface UpdateProjectInput {
   title?: string
-  description?: string
-  color?: string
+  description?: string | null
+  color?: string | null
   status?: ProjectStatus
   initiativeId?: string | null
 }

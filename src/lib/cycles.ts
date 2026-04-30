@@ -3,7 +3,7 @@ import type { Cycle, CycleStatus, CreateCycleInput } from '@/types'
 
 interface UpdateCycleInput {
   title?: string
-  description?: string
+  description?: string | null
   status?: CycleStatus
   startDate?: string
   endDate?: string

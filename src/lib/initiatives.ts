@@ -3,9 +3,9 @@ import type { Initiative, InitiativeStatus, CreateInitiativeInput } from '@/type
 
 interface UpdateInitiativeInput {
   title?: string
-  description?: string
+  description?: string | null
   status?: InitiativeStatus
-  color?: string
+  color?: string | null
   startDate?: string | null
   targetDate?: string | null
 }

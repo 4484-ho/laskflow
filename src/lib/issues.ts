@@ -1,3 +1,4 @@
+import type { Issue as PrismaIssue } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import type { Issue, IssueStatus, IssuePriority, CreateIssueInput, UpdateIssueInput } from '@/types'
 
@@ -8,9 +9,11 @@ interface GetIssuesParams {
   cycleId?: string
 }
 
-function parseIssue(raw: any): Issue {
+function parseIssue(raw: PrismaIssue): Issue {
   return {
     ...raw,
+    status: raw.status as IssueStatus,
+    priority: raw.priority as IssuePriority,
     labels: JSON.parse(raw.labels ?? '[]') as string[],
   }
 }

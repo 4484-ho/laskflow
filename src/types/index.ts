@@ -81,7 +81,7 @@ export interface CreateIssueInput {
 
 export interface UpdateIssueInput {
   title?: string
-  description?: string
+  description?: string | null
   status?: IssueStatus
   priority?: IssuePriority
   cycleId?: string | null
