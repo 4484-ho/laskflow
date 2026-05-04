@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { updateIssue, deleteIssue } from '@/lib/issues'
+import { updateIssue, deleteIssue } from '@/server/db/issues'
 import { updateIssueSchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
 

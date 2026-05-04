@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 
-vi.mock('@/lib/prisma', () => ({
+vi.mock('@/server/db/prisma', () => ({
   prisma: {
     project: {
       findMany: vi.fn(),
@@ -12,8 +12,8 @@ vi.mock('@/lib/prisma', () => ({
   },
 }))
 
-import { prisma } from '@/lib/prisma'
-import { getProjects, createProject, updateProject, deleteProject } from '@/lib/projects'
+import { prisma } from '@/server/db/prisma'
+import { getProjects, createProject, updateProject, deleteProject } from '@/server/db/projects'
 
 const rawProject = {
   id: 'proj-1',

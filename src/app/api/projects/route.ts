@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getProjects, createProject } from '@/lib/projects'
+import { getProjects, createProject } from '@/server/db/projects'
 import { createProjectSchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
 

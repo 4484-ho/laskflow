@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getIssues, createIssue } from '@/lib/issues'
+import { getIssues, createIssue } from '@/server/db/issues'
 import { createIssueSchema, issueListQuerySchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
 

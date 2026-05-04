@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getInitiatives, createInitiative } from '@/lib/initiatives'
+import { getInitiatives, createInitiative } from '@/server/db/initiatives'
 import { createInitiativeSchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
 

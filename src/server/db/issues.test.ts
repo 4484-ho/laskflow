@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 
-vi.mock('@/lib/prisma', () => ({
+vi.mock('@/server/db/prisma', () => ({
   prisma: {
     issue: {
       findMany: vi.fn(),
@@ -16,8 +16,8 @@ vi.mock('@/lib/prisma', () => ({
   },
 }))
 
-import { prisma } from '@/lib/prisma'
-import { getIssues, getIssue, createIssue, updateIssue, deleteIssue } from '@/lib/issues'
+import { prisma } from '@/server/db/prisma'
+import { getIssues, getIssue, createIssue, updateIssue, deleteIssue } from '@/server/db/issues'
 
 const rawIssue = {
   id: 'issue-1',

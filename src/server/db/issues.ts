@@ -1,5 +1,5 @@
 import type { Issue as PrismaIssue } from '@prisma/client'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/server/db/prisma'
 import type { Issue, IssueStatus, IssuePriority, CreateIssueInput, UpdateIssueInput } from '@/types'
 
 interface GetIssuesParams {

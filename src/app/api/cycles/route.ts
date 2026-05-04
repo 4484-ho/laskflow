@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCycles, createCycle } from '@/lib/cycles'
+import { getCycles, createCycle } from '@/server/db/cycles'
 import { createCycleSchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
 

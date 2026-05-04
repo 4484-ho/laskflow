@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/server/db/prisma'
 import type { Initiative, InitiativeStatus, CreateInitiativeInput } from '@/types'
 
 interface UpdateInitiativeInput {
