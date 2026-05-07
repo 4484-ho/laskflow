@@ -183,4 +183,27 @@ describe('domain/issues — moveIssue', () => {
     const [, newKey] = (db.updateSortOrder as ReturnType<typeof vi.fn>).mock.calls[0] as [string, string]
     expect(newKey < 'a3').toBe(true)
   })
+
+  it('rejects when beforeKey >= afterKey', async () => {
+    ;(db.getIssue as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ id: 'before', sortOrder: 'a5' })
+      .mockResolvedValueOnce({ id: 'after', sortOrder: 'a1' })
+    await expect(
+      moveIssue('target', { beforeId: 'before', afterId: 'after' }),
+    ).rejects.toThrow(/before.*after|sort key/i)
+  })
+
+  it('rejects when beforeId is not found', async () => {
+    ;(db.getIssue as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null)
+    await expect(
+      moveIssue('target', { beforeId: 'missing-before', afterId: null }),
+    ).rejects.toThrow(/beforeId.*not found/i)
+  })
+
+  it('rejects when afterId is not found', async () => {
+    ;(db.getIssue as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null)
+    await expect(
+      moveIssue('target', { beforeId: null, afterId: 'missing-after' }),
+    ).rejects.toThrow(/afterId.*not found/i)
+  })
 })

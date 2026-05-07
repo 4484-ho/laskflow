@@ -23,10 +23,8 @@ export async function createIssue(input: CreateIssueDomainInput): Promise<Issue>
   const parsed = createIssueSchema.parse(input)
   // Assign sortOrder after the last existing issue in this project (or a fresh key if none)
   const existing = await db.getIssues({ projectId: parsed.projectId })
-  const lastKey =
-    existing.length > 0
-      ? [...existing.map((i) => i.sortOrder)].sort().at(-1) ?? null
-      : null
+  // db.getIssues returns issues ordered by sortOrder asc, so last element is the max key
+  const lastKey = existing.at(-1)?.sortOrder ?? null
   const sortOrder = keyBetween(lastKey, null)
   return db.createIssue({ ...parsed, sortOrder })
 }
@@ -40,12 +38,26 @@ export async function updateIssue(
 }
 
 export async function moveIssue(id: string, params: MoveIssueParams): Promise<Issue> {
-  const beforeKey = params.beforeId
-    ? ((await db.getIssue(params.beforeId))?.sortOrder ?? null)
-    : null
-  const afterKey = params.afterId
-    ? ((await db.getIssue(params.afterId))?.sortOrder ?? null)
-    : null
+  let beforeKey: string | null = null
+  if (params.beforeId) {
+    const before = await db.getIssue(params.beforeId)
+    if (!before) throw new Error(`moveIssue: beforeId "${params.beforeId}" not found`)
+    beforeKey = before.sortOrder
+  }
+
+  let afterKey: string | null = null
+  if (params.afterId) {
+    const after = await db.getIssue(params.afterId)
+    if (!after) throw new Error(`moveIssue: afterId "${params.afterId}" not found`)
+    afterKey = after.sortOrder
+  }
+
+  if (beforeKey !== null && afterKey !== null && beforeKey >= afterKey) {
+    throw new Error(
+      `moveIssue: beforeId sort key must precede afterId sort key (got "${beforeKey}" >= "${afterKey}")`,
+    )
+  }
+
   const newKey = keyBetween(beforeKey, afterKey)
   return db.updateSortOrder(id, newKey)
 }
