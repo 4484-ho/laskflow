@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { updateInitiative, deleteInitiative } from '@/server/db/initiatives'
+import { updateInitiative, deleteInitiative } from '@/server/domain/initiatives'
 import { updateInitiativeSchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
 

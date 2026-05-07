@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCycles, createCycle } from '@/server/db/cycles'
+import { listCycles, createCycle } from '@/server/domain/cycles'
 import { createCycleSchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
 
 export async function GET() {
   try {
-    return NextResponse.json(await getCycles())
+    return NextResponse.json(await listCycles())
   } catch (e) {
     console.error('GET /api/cycles failed', e)
     return NextResponse.json({ error: 'Failed to fetch cycles' }, { status: 500 })

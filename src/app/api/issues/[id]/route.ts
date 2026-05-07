@@ -1,7 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { updateIssue, deleteIssue } from '@/server/db/issues'
+import { getIssue, updateIssue, deleteIssue } from '@/server/domain/issues'
 import { updateIssueSchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params
+  try {
+    const issue = await getIssue(id)
+    if (!issue) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    return NextResponse.json(issue)
+  } catch (e) {
+    console.error(`GET /api/issues/${id} failed`, e)
+    return NextResponse.json({ error: 'Failed to fetch issue' }, { status: 500 })
+  }
+}
 
 export async function PATCH(
   request: NextRequest,
