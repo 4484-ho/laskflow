@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
 import { POST } from './route'
+import { NotFoundError } from '@/lib/errors'
 
 vi.mock('@/server/domain/issues', () => ({
   moveIssue: vi.fn(),
@@ -71,6 +72,16 @@ describe('POST /api/issues/[id]/move', () => {
     })
   })
 
+  it('returns 400 when beforeId is an empty string', async () => {
+    const req = makeRequest({ beforeId: '' })
+    const res = await POST(req, { params: Promise.resolve({ id: 'issue-1' }) })
+
+    expect(res.status).toBe(400)
+    const json = await res.json()
+    expect(json).toHaveProperty('error')
+    expect(domain.moveIssue).not.toHaveBeenCalled()
+  })
+
   it('returns 400 for invalid body (extra required field with wrong type)', async () => {
     const req = makeRequest({ beforeId: 123 }) // number instead of string
     const res = await POST(req, { params: Promise.resolve({ id: 'issue-1' }) })
@@ -97,7 +108,7 @@ describe('POST /api/issues/[id]/move', () => {
 
   it('returns 404 when moveIssue throws a not-found error (beforeId)', async () => {
     ;(domain.moveIssue as ReturnType<typeof vi.fn>).mockRejectedValue(
-      new Error('moveIssue: beforeId "issue-0" not found'),
+      new NotFoundError('moveIssue: beforeId "issue-0" not found'),
     )
 
     const req = makeRequest({ beforeId: 'issue-0', afterId: null })
@@ -110,7 +121,7 @@ describe('POST /api/issues/[id]/move', () => {
 
   it('returns 404 when moveIssue throws a not-found error (afterId)', async () => {
     ;(domain.moveIssue as ReturnType<typeof vi.fn>).mockRejectedValue(
-      new Error('moveIssue: afterId "issue-2" not found'),
+      new NotFoundError('moveIssue: afterId "issue-2" not found'),
     )
 
     const req = makeRequest({ beforeId: null, afterId: 'issue-2' })

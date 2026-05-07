@@ -6,6 +6,7 @@ import {
 } from '@/lib/schemas'
 import * as db from '@/server/db/issues'
 import { keyBetween } from '@/lib/fractional-index'
+import { NotFoundError } from '@/lib/errors'
 import type { Issue } from '@/types'
 
 // z.input gives the pre-parse (caller-provided) shape.
@@ -41,14 +42,14 @@ export async function moveIssue(id: string, params: MoveIssueParams): Promise<Is
   let beforeKey: string | null = null
   if (params.beforeId) {
     const before = await db.getIssue(params.beforeId)
-    if (!before) throw new Error(`moveIssue: beforeId "${params.beforeId}" not found`)
+    if (!before) throw new NotFoundError(`moveIssue: beforeId "${params.beforeId}" not found`)
     beforeKey = before.sortOrder
   }
 
   let afterKey: string | null = null
   if (params.afterId) {
     const after = await db.getIssue(params.afterId)
-    if (!after) throw new Error(`moveIssue: afterId "${params.afterId}" not found`)
+    if (!after) throw new NotFoundError(`moveIssue: afterId "${params.afterId}" not found`)
     afterKey = after.sortOrder
   }
 

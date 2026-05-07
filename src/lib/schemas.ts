@@ -102,6 +102,6 @@ export const updateCycleSchema = z.object({
 })
 
 export const moveIssueSchema = z.object({
-  beforeId: z.string().nullable().optional(),
-  afterId: z.string().nullable().optional(),
+  beforeId: z.string().min(1).nullable().optional(),
+  afterId: z.string().min(1).nullable().optional(),
 })
