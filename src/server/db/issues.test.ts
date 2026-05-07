@@ -32,7 +32,7 @@ const rawIssue = {
   labels: '["bug"]',
   dueDate: null,
   estimate: null,
-  sortOrder: 0,
+  sortOrder: 'a0',
   createdAt: new Date('2026-01-01'),
   updatedAt: new Date('2026-01-01'),
 }
@@ -94,7 +94,7 @@ describe('createIssue', () => {
       (fn as (client: typeof prisma) => Promise<unknown>)(prisma),
     )
 
-    const result = await createIssue({ title: 'New issue', projectId: 'proj-1' })
+    const result = await createIssue({ title: 'New issue', projectId: 'proj-1', sortOrder: 'a0' })
 
     expect(result.identifier).toBe('FE-3')
     expect(vi.mocked(prisma.project.update)).toHaveBeenCalledWith(

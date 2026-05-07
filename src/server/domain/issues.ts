@@ -15,7 +15,8 @@ export type ListIssuesParams = z.input<typeof issueListQuerySchema>
 
 export async function createIssue(input: CreateIssueDomainInput): Promise<Issue> {
   const parsed = createIssueSchema.parse(input)
-  return db.createIssue(parsed)
+  // TODO(D4): replace placeholder with lexicographic sortOrder computation
+  return db.createIssue({ ...parsed, sortOrder: String(Date.now()) })
 }
 
 export async function updateIssue(

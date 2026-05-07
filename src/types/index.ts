@@ -49,7 +49,7 @@ export interface Issue {
   labels: string[]
   dueDate: Date | null
   estimate: number | null
-  sortOrder: number
+  sortOrder: string
   createdAt: Date
   updatedAt: Date
 }
@@ -89,7 +89,6 @@ export interface UpdateIssueInput {
   labels?: string[]
   dueDate?: string | null
   estimate?: number | null
-  sortOrder?: number
 }
 
 export interface CreateProjectInput {
