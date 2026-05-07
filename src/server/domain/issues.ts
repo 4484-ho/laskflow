@@ -39,6 +39,9 @@ export async function updateIssue(
 }
 
 export async function moveIssue(id: string, params: MoveIssueParams): Promise<Issue> {
+  const target = await db.getIssue(id)
+  if (!target) throw new NotFoundError(`moveIssue: issue "${id}" not found`)
+
   let beforeKey: string | null = null
   if (params.beforeId) {
     const before = await db.getIssue(params.beforeId)

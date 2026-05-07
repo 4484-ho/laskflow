@@ -1,19 +1,16 @@
 'use client'
 
+import { z } from 'zod'
 import {
   useQuery,
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/query-keys'
+import { issueListQuerySchema } from '@/lib/schemas'
 import type { Issue, CreateIssueInput, UpdateIssueInput } from '@/types'
 
-type IssueFilters = {
-  status?: string
-  priority?: string
-  projectId?: string
-  cycleId?: string
-}
+type IssueFilters = z.input<typeof issueListQuerySchema>
 
 async function fetchIssues(filters: IssueFilters): Promise<Issue[]> {
   const qs = new URLSearchParams()

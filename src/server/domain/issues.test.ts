@@ -186,6 +186,7 @@ describe('domain/issues — moveIssue', () => {
 
   it('rejects when beforeKey >= afterKey', async () => {
     ;(db.getIssue as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ id: 'target', sortOrder: 'a5' })  // target check
       .mockResolvedValueOnce({ id: 'before', sortOrder: 'a5' })
       .mockResolvedValueOnce({ id: 'after', sortOrder: 'a1' })
     await expect(
@@ -194,16 +195,27 @@ describe('domain/issues — moveIssue', () => {
   })
 
   it('rejects when beforeId is not found', async () => {
-    ;(db.getIssue as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null)
+    ;(db.getIssue as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ id: 'target', sortOrder: 'a0' })  // target check
+      .mockResolvedValueOnce(null)                                // beforeId check
     await expect(
       moveIssue('target', { beforeId: 'missing-before', afterId: null }),
     ).rejects.toThrow(/beforeId.*not found/i)
   })
 
   it('rejects when afterId is not found', async () => {
-    ;(db.getIssue as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null)
+    ;(db.getIssue as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ id: 'target', sortOrder: 'a0' })  // target check
+      .mockResolvedValueOnce(null)                                // afterId check
     await expect(
       moveIssue('target', { beforeId: null, afterId: 'missing-after' }),
     ).rejects.toThrow(/afterId.*not found/i)
+  })
+
+  it('rejects when target issue id is not found', async () => {
+    ;(db.getIssue as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null)
+    await expect(
+      moveIssue('deleted-issue', { beforeId: null, afterId: null }),
+    ).rejects.toThrow(/issue.*not found/i)
   })
 })
