@@ -26,14 +26,14 @@ describe('domain/issues', () => {
     it('rejects invalid input (missing title)', async () => {
       await expect(
         createIssue({ projectId: 'p1' } as never),
-      ).rejects.toThrow()
+      ).rejects.toThrow(/title/i)
       expect(db.createIssue).not.toHaveBeenCalled()
     })
 
     it('rejects invalid status', async () => {
       await expect(
         createIssue({ title: 't', projectId: 'p1', status: 'bogus' as never }),
-      ).rejects.toThrow()
+      ).rejects.toThrow(/invalid_enum_value|status/i)
       expect(db.createIssue).not.toHaveBeenCalled()
     })
 
@@ -75,7 +75,7 @@ describe('domain/issues', () => {
 
   describe('listIssues', () => {
     it('rejects invalid status filter', async () => {
-      await expect(listIssues({ status: 'bogus' as never })).rejects.toThrow()
+      await expect(listIssues({ status: 'bogus' as never })).rejects.toThrow(/invalid_enum_value|status/i)
       expect(db.getIssues).not.toHaveBeenCalled()
     })
 

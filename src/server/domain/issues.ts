@@ -7,6 +7,8 @@ import {
 import * as db from '@/server/db/issues'
 import type { Issue } from '@/types'
 
+// z.input gives the pre-parse (caller-provided) shape.
+// Using z.input allows callers to pass raw values; domain functions validate internally.
 export type CreateIssueDomainInput = z.input<typeof createIssueSchema>
 export type UpdateIssueDomainInput = z.input<typeof updateIssueSchema>
 export type ListIssuesParams = z.input<typeof issueListQuerySchema>
