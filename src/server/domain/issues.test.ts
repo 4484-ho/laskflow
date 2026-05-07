@@ -5,6 +5,7 @@ import {
   getIssue,
   listIssues,
   deleteIssue,
+  moveIssue,   // NEW
 } from '@/server/domain/issues'
 
 vi.mock('@/server/db/issues', () => ({
@@ -12,6 +13,7 @@ vi.mock('@/server/db/issues', () => ({
   getIssue: vi.fn(),
   createIssue: vi.fn(),
   updateIssue: vi.fn(),
+  updateSortOrder: vi.fn(),  // NEW
   deleteIssue: vi.fn(),
 }))
 
@@ -38,6 +40,7 @@ describe('domain/issues', () => {
     })
 
     it('passes validated input to db', async () => {
+      ;(db.getIssues as ReturnType<typeof vi.fn>).mockResolvedValue([])
       ;(db.createIssue as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'i1', title: 'hello', projectId: 'p1' })
       await createIssue({ title: 'hello', projectId: 'p1' })
       expect(db.createIssue).toHaveBeenCalledWith(
@@ -92,5 +95,92 @@ describe('domain/issues', () => {
       await deleteIssue('i1')
       expect(db.deleteIssue).toHaveBeenCalledWith('i1')
     })
+  })
+})
+
+describe('domain/issues — sortOrder on create', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('assigns a key after the last existing issue in the same project', async () => {
+    ;(db.getIssues as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: 'i0', sortOrder: 'a0', projectId: 'p1' },
+    ])
+    ;(db.createIssue as ReturnType<typeof vi.fn>).mockImplementation(
+      (arg: { sortOrder: string }) => ({ id: 'i1', ...arg }),
+    )
+    await createIssue({ title: 't', projectId: 'p1' })
+    const call = (db.createIssue as ReturnType<typeof vi.fn>).mock.calls[0][0] as { sortOrder: string }
+    expect(call.sortOrder > 'a0').toBe(true)
+  })
+
+  it('assigns an initial key when no issues exist', async () => {
+    ;(db.getIssues as ReturnType<typeof vi.fn>).mockResolvedValue([])
+    ;(db.createIssue as ReturnType<typeof vi.fn>).mockImplementation(
+      (arg: { sortOrder: string }) => ({ id: 'i1', ...arg }),
+    )
+    await createIssue({ title: 't', projectId: 'p1' })
+    const call = (db.createIssue as ReturnType<typeof vi.fn>).mock.calls[0][0] as { sortOrder: string }
+    expect(typeof call.sortOrder).toBe('string')
+    expect(call.sortOrder.length).toBeGreaterThan(0)
+    // Must not be the old Date.now() placeholder format (numeric string)
+    expect(isNaN(Number(call.sortOrder))).toBe(true)
+  })
+})
+
+describe('domain/issues — moveIssue', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('moves an issue between two others', async () => {
+    ;(db.getIssue as ReturnType<typeof vi.fn>).mockImplementation((id: string) => {
+      const map: Record<string, { id: string; sortOrder: string }> = {
+        before: { id: 'before', sortOrder: 'a0' },
+        after: { id: 'after', sortOrder: 'a2' },
+        target: { id: 'target', sortOrder: 'a5' },
+      }
+      return Promise.resolve(map[id] ?? null)
+    })
+    ;(db.updateSortOrder as ReturnType<typeof vi.fn>).mockImplementation(
+      (id: string, sortOrder: string) => Promise.resolve({ id, sortOrder }),
+    )
+    await moveIssue('target', { beforeId: 'before', afterId: 'after' })
+    const [, newKey] = (db.updateSortOrder as ReturnType<typeof vi.fn>).mock.calls[0] as [string, string]
+    expect(newKey > 'a0').toBe(true)
+    expect(newKey < 'a2').toBe(true)
+  })
+
+  it('moves to end when afterId is null', async () => {
+    ;(db.getIssue as ReturnType<typeof vi.fn>).mockImplementation((id: string) => {
+      const map: Record<string, { id: string; sortOrder: string }> = {
+        before: { id: 'before', sortOrder: 'a5' },
+        target: { id: 'target', sortOrder: 'a0' },
+      }
+      return Promise.resolve(map[id] ?? null)
+    })
+    ;(db.updateSortOrder as ReturnType<typeof vi.fn>).mockImplementation(
+      (id: string, sortOrder: string) => Promise.resolve({ id, sortOrder }),
+    )
+    await moveIssue('target', { beforeId: 'before', afterId: null })
+    const [, newKey] = (db.updateSortOrder as ReturnType<typeof vi.fn>).mock.calls[0] as [string, string]
+    expect(newKey > 'a5').toBe(true)
+  })
+
+  it('moves to beginning when beforeId is null', async () => {
+    ;(db.getIssue as ReturnType<typeof vi.fn>).mockImplementation((id: string) => {
+      const map: Record<string, { id: string; sortOrder: string }> = {
+        after: { id: 'after', sortOrder: 'a3' },
+        target: { id: 'target', sortOrder: 'a9' },
+      }
+      return Promise.resolve(map[id] ?? null)
+    })
+    ;(db.updateSortOrder as ReturnType<typeof vi.fn>).mockImplementation(
+      (id: string, sortOrder: string) => Promise.resolve({ id, sortOrder }),
+    )
+    await moveIssue('target', { beforeId: null, afterId: 'after' })
+    const [, newKey] = (db.updateSortOrder as ReturnType<typeof vi.fn>).mock.calls[0] as [string, string]
+    expect(newKey < 'a3').toBe(true)
   })
 })
