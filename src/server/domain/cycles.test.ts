@@ -16,7 +16,7 @@ describe('domain/cycles', () => {
 
   describe('createCycle', () => {
     it('rejects missing endDate', async () => {
-      await expect(createCycle({ title: 'C', startDate: '2026-05-01' } as never)).rejects.toThrow()
+      await expect(createCycle({ title: 'C', startDate: '2026-05-01' } as never)).rejects.toThrow(/endDate|required/i)
       expect(db.createCycle).not.toHaveBeenCalled()
     })
 
@@ -31,6 +31,12 @@ describe('domain/cycles', () => {
     it('rejects invalid status', async () => {
       await expect(updateCycle('c1', { status: 'bogus' as never })).rejects.toThrow(/invalid_enum_value|status/i)
       expect(db.updateCycle).not.toHaveBeenCalled()
+    })
+
+    it('passes validated update to db', async () => {
+      ;(db.updateCycle as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'c1' })
+      await updateCycle('c1', { status: 'completed' })
+      expect(db.updateCycle).toHaveBeenCalledWith('c1', expect.objectContaining({ status: 'completed' }))
     })
   })
 

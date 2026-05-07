@@ -25,6 +25,12 @@ describe('domain/initiatives', () => {
       await createInitiative({ title: 'I' })
       expect(db.createInitiative).toHaveBeenCalledWith(expect.objectContaining({ title: 'I' }))
     })
+
+    it('passes optional color to db', async () => {
+      ;(db.createInitiative as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'i1', color: '#FF0000' })
+      await createInitiative({ title: 'I', color: '#FF0000' })
+      expect(db.createInitiative).toHaveBeenCalledWith(expect.objectContaining({ title: 'I', color: '#FF0000' }))
+    })
   })
 
   describe('updateInitiative', () => {
@@ -44,6 +50,11 @@ describe('domain/initiatives', () => {
     it('delegates to db', async () => {
       ;(db.getInitiative as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'i1' })
       expect(await getInitiative('i1')).toEqual({ id: 'i1' })
+    })
+
+    it('returns null when not found', async () => {
+      ;(db.getInitiative as ReturnType<typeof vi.fn>).mockResolvedValue(null)
+      expect(await getInitiative('x')).toBeNull()
     })
   })
 
