@@ -24,8 +24,6 @@ function CreateIssueForm({ onClose }: { onClose: () => void }) {
   const [projectId, setProjectId] = useState('')
   const [priority, setPriority] = useState<IssuePriority>('none')
   const [projects, setProjects] = useState<Project[]>([])
-  const [submitting, setSubmitting] = useState(false)
-
   useEffect(() => {
     fetch('/api/projects')
       .then((r) => r.json())
@@ -38,12 +36,11 @@ function CreateIssueForm({ onClose }: { onClose: () => void }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim() || !projectId) return
-    setSubmitting(true)
     try {
       await createIssueMutation.mutateAsync({ title: title.trim(), projectId, priority })
       onClose()
-    } finally {
-      setSubmitting(false)
+    } catch {
+      // mutation error is tracked by createIssueMutation.isError
     }
   }
 
@@ -101,10 +98,10 @@ function CreateIssueForm({ onClose }: { onClose: () => void }) {
             </button>
             <button
               type="submit"
-              disabled={!title.trim() || !projectId || submitting}
+              disabled={!title.trim() || !projectId || createIssueMutation.isPending}
               className="px-4 py-1.5 rounded-md text-sm bg-neutral-700 hover:bg-neutral-600 text-neutral-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              {submitting ? 'Creating...' : 'Create Issue'}
+              {createIssueMutation.isPending ? 'Creating...' : 'Create Issue'}
             </button>
           </div>
         </form>

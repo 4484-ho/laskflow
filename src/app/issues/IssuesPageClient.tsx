@@ -8,7 +8,7 @@ import { Topbar } from '@/components/layout/Topbar'
 import { Plus } from 'lucide-react'
 
 export function IssuesPageClient() {
-  const { data: issues, isLoading } = useIssues()
+  const { data: issues, isLoading, isError } = useIssues()
   const { openCreateIssueModal } = useUiStore()
 
   return (
@@ -29,6 +29,8 @@ export function IssuesPageClient() {
 
           {isLoading ? (
             <p className="px-4 text-sm text-neutral-500">Loading...</p>
+          ) : isError ? (
+            <p className="px-4 text-sm text-red-500">Failed to load issues.</p>
           ) : !issues || issues.length === 0 ? (
             <p className="px-4 text-sm text-neutral-500">No issues yet.</p>
           ) : (
