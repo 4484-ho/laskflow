@@ -7,13 +7,14 @@ import type { Project } from '@/types'
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
+  const [refreshKey, setRefreshKey] = useState(0)
+  const load = useCallback(() => setRefreshKey((k) => k + 1), [])
 
-  const load = useCallback(async () => {
-    const res = await fetch('/api/projects')
-    setProjects(await res.json())
-  }, [])
-
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    fetch('/api/projects')
+      .then((r) => r.json())
+      .then(setProjects)
+  }, [refreshKey])
 
   return (
     <>

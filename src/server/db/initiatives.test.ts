@@ -31,7 +31,7 @@ beforeEach(() => vi.clearAllMocks())
 
 describe('getInitiatives', () => {
   it('returns initiatives', async () => {
-    vi.mocked(prisma.initiative.findMany).mockResolvedValue([rawInitiative] as any)
+    vi.mocked(prisma.initiative.findMany).mockResolvedValue([rawInitiative] as unknown as Awaited<ReturnType<typeof prisma.initiative.findMany>>)
     const result = await getInitiatives()
     expect(result[0].title).toBe('Q3 Release')
   })
@@ -39,7 +39,7 @@ describe('getInitiatives', () => {
 
 describe('createInitiative', () => {
   it('creates an initiative', async () => {
-    vi.mocked(prisma.initiative.create).mockResolvedValue(rawInitiative as any)
+    vi.mocked(prisma.initiative.create).mockResolvedValue(rawInitiative as unknown as Awaited<ReturnType<typeof prisma.initiative.create>>)
     const result = await createInitiative({ title: 'Q3 Release' })
     expect(result.id).toBe('init-1')
   })
@@ -47,7 +47,7 @@ describe('createInitiative', () => {
 
 describe('deleteInitiative', () => {
   it('calls prisma.initiative.delete with correct id', async () => {
-    vi.mocked(prisma.initiative.delete).mockResolvedValue(rawInitiative as any)
+    vi.mocked(prisma.initiative.delete).mockResolvedValue(rawInitiative as unknown as Awaited<ReturnType<typeof prisma.initiative.delete>>)
     await deleteInitiative('init-1')
     expect(vi.mocked(prisma.initiative.delete)).toHaveBeenCalledWith({ where: { id: 'init-1' } })
   })

@@ -43,7 +43,7 @@ beforeEach(() => {
 
 describe('getIssues', () => {
   it('returns parsed issues with labels as array', async () => {
-    vi.mocked(prisma.issue.findMany).mockResolvedValue([rawIssue] as any)
+    vi.mocked(prisma.issue.findMany).mockResolvedValue([rawIssue] as unknown as Awaited<ReturnType<typeof prisma.issue.findMany>>)
 
     const result = await getIssues()
 
@@ -74,7 +74,7 @@ describe('getIssue', () => {
   })
 
   it('returns parsed issue when found', async () => {
-    vi.mocked(prisma.issue.findUnique).mockResolvedValue(rawIssue as any)
+    vi.mocked(prisma.issue.findUnique).mockResolvedValue(rawIssue as unknown as Awaited<ReturnType<typeof prisma.issue.findUnique>>)
 
     const result = await getIssue('issue-1')
 
@@ -88,9 +88,11 @@ describe('createIssue', () => {
     const mockProject = { id: 'proj-1', prefix: 'FE', issueCounter: 3 }
     const mockCreated = { ...rawIssue, identifier: 'FE-3', labels: '[]' }
 
-    vi.mocked(prisma.project.update).mockResolvedValueOnce(mockProject as any)
-    vi.mocked(prisma.issue.create).mockResolvedValueOnce(mockCreated as any)
-    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => fn(prisma))
+    vi.mocked(prisma.project.update).mockResolvedValueOnce(mockProject as unknown as Awaited<ReturnType<typeof prisma.project.update>>)
+    vi.mocked(prisma.issue.create).mockResolvedValueOnce(mockCreated as unknown as Awaited<ReturnType<typeof prisma.issue.create>>)
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn: unknown) =>
+      (fn as (client: typeof prisma) => Promise<unknown>)(prisma),
+    )
 
     const result = await createIssue({ title: 'New issue', projectId: 'proj-1' })
 
@@ -106,7 +108,7 @@ describe('createIssue', () => {
 describe('updateIssue', () => {
   it('updates and returns parsed issue', async () => {
     const updated = { ...rawIssue, status: 'done', labels: '[]' }
-    vi.mocked(prisma.issue.update).mockResolvedValue(updated as any)
+    vi.mocked(prisma.issue.update).mockResolvedValue(updated as unknown as Awaited<ReturnType<typeof prisma.issue.update>>)
 
     const result = await updateIssue('issue-1', { status: 'done' })
 
@@ -116,7 +118,7 @@ describe('updateIssue', () => {
 
 describe('deleteIssue', () => {
   it('calls prisma.issue.delete with correct id', async () => {
-    vi.mocked(prisma.issue.delete).mockResolvedValue(rawIssue as any)
+    vi.mocked(prisma.issue.delete).mockResolvedValue(rawIssue as unknown as Awaited<ReturnType<typeof prisma.issue.delete>>)
 
     await deleteIssue('issue-1')
 

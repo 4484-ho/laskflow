@@ -13,6 +13,11 @@ interface Project {
 
 export function CreateIssueModal() {
   const { isCreateIssueModalOpen, closeCreateIssueModal } = useUiStore()
+  if (!isCreateIssueModalOpen) return null
+  return <CreateIssueForm onClose={closeCreateIssueModal} />
+}
+
+function CreateIssueForm({ onClose }: { onClose: () => void }) {
   const { createIssue } = useIssueStore()
 
   const [title, setTitle] = useState('')
@@ -22,18 +27,13 @@ export function CreateIssueModal() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    if (isCreateIssueModalOpen) {
-      fetch('/api/projects')
-        .then((r) => r.json())
-        .then((data: Project[]) => {
-          setProjects(data)
-          if (data.length > 0) setProjectId(data[0].id)
-        })
-    } else {
-      setTitle('')
-      setPriority('none')
-    }
-  }, [isCreateIssueModalOpen])
+    fetch('/api/projects')
+      .then((r) => r.json())
+      .then((data: Project[]) => {
+        setProjects(data)
+        if (data.length > 0) setProjectId(data[0].id)
+      })
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,18 +41,16 @@ export function CreateIssueModal() {
     setSubmitting(true)
     try {
       await createIssue({ title: title.trim(), projectId, priority })
-      closeCreateIssueModal()
+      onClose()
     } finally {
       setSubmitting(false)
     }
   }
 
-  if (!isCreateIssueModalOpen) return null
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={(e) => e.target === e.currentTarget && closeCreateIssueModal()}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="bg-neutral-900 border border-neutral-700 rounded-xl w-full max-w-lg p-5 shadow-2xl">
         <h2 className="text-sm font-medium text-neutral-200 mb-4">New Issue</h2>
@@ -96,7 +94,7 @@ export function CreateIssueModal() {
           <div className="flex justify-end gap-2 mt-1">
             <button
               type="button"
-              onClick={closeCreateIssueModal}
+              onClick={onClose}
               className="px-4 py-1.5 rounded-md text-sm text-neutral-400 hover:text-neutral-200 transition-colors"
             >
               Cancel
