@@ -100,3 +100,8 @@ export const updateCycleSchema = z.object({
   startDate: isoDateString.optional(),
   endDate: isoDateString.optional(),
 })
+
+export const moveIssueSchema = z.object({
+  beforeId: z.string().nullable().optional(),
+  afterId: z.string().nullable().optional(),
+})
