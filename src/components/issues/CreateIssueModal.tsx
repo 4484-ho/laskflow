@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useIssueStore } from '@/stores/issueStore'
+import { useCreateIssue } from '@/hooks/useIssues'
 import { useUiStore } from '@/stores/uiStore'
 import type { IssuePriority } from '@/types'
 
@@ -18,7 +18,7 @@ export function CreateIssueModal() {
 }
 
 function CreateIssueForm({ onClose }: { onClose: () => void }) {
-  const { createIssue } = useIssueStore()
+  const createIssueMutation = useCreateIssue()
 
   const [title, setTitle] = useState('')
   const [projectId, setProjectId] = useState('')
@@ -40,7 +40,7 @@ function CreateIssueForm({ onClose }: { onClose: () => void }) {
     if (!title.trim() || !projectId) return
     setSubmitting(true)
     try {
-      await createIssue({ title: title.trim(), projectId, priority })
+      await createIssueMutation.mutateAsync({ title: title.trim(), projectId, priority })
       onClose()
     } finally {
       setSubmitting(false)

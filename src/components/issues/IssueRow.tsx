@@ -1,6 +1,6 @@
 'use client'
 
-import { useIssueStore } from '@/stores/issueStore'
+import { useUpdateIssue } from '@/hooks/useIssues'
 import type { Issue, IssueStatus } from '@/types'
 
 const STATUS_ICONS: Record<IssueStatus, { icon: string; label: string; next: IssueStatus }> = {
@@ -25,11 +25,11 @@ interface IssueRowProps {
 }
 
 export function IssueRow({ issue }: IssueRowProps) {
-  const { updateIssue } = useIssueStore()
+  const updateIssueMutation = useUpdateIssue()
   const statusInfo = STATUS_ICONS[issue.status]
 
   const cycleStatus = () => {
-    updateIssue(issue.id, { status: statusInfo.next })
+    updateIssueMutation.mutate({ id: issue.id, data: { status: statusInfo.next } })
   }
 
   return (
