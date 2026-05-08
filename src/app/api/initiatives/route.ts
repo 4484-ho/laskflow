@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getInitiatives, createInitiative } from '@/lib/initiatives'
+import { listInitiatives, createInitiative } from '@/server/domain/initiatives'
 import { createInitiativeSchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
 
 export async function GET() {
   try {
-    return NextResponse.json(await getInitiatives())
+    return NextResponse.json(await listInitiatives())
   } catch (e) {
     console.error('GET /api/initiatives failed', e)
     return NextResponse.json({ error: 'Failed to fetch initiatives' }, { status: 500 })

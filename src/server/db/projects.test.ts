@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 
-vi.mock('@/lib/prisma', () => ({
+vi.mock('@/server/db/prisma', () => ({
   prisma: {
     project: {
       findMany: vi.fn(),
@@ -12,8 +12,8 @@ vi.mock('@/lib/prisma', () => ({
   },
 }))
 
-import { prisma } from '@/lib/prisma'
-import { getProjects, createProject, updateProject, deleteProject } from '@/lib/projects'
+import { prisma } from '@/server/db/prisma'
+import { getProjects, createProject, deleteProject } from '@/server/db/projects'
 
 const rawProject = {
   id: 'proj-1',
@@ -32,7 +32,7 @@ beforeEach(() => vi.clearAllMocks())
 
 describe('getProjects', () => {
   it('returns projects ordered by createdAt', async () => {
-    vi.mocked(prisma.project.findMany).mockResolvedValue([rawProject] as any)
+    vi.mocked(prisma.project.findMany).mockResolvedValue([rawProject] as unknown as Awaited<ReturnType<typeof prisma.project.findMany>>)
     const result = await getProjects()
     expect(result).toHaveLength(1)
     expect(result[0].prefix).toBe('FE')
@@ -41,7 +41,7 @@ describe('getProjects', () => {
 
 describe('createProject', () => {
   it('creates a project with the given data', async () => {
-    vi.mocked(prisma.project.create).mockResolvedValue(rawProject as any)
+    vi.mocked(prisma.project.create).mockResolvedValue(rawProject as unknown as Awaited<ReturnType<typeof prisma.project.create>>)
     const result = await createProject({ title: 'Frontend', prefix: 'FE' })
     expect(result.prefix).toBe('FE')
   })
@@ -49,7 +49,7 @@ describe('createProject', () => {
 
 describe('deleteProject', () => {
   it('calls prisma.project.delete with correct id', async () => {
-    vi.mocked(prisma.project.delete).mockResolvedValue(rawProject as any)
+    vi.mocked(prisma.project.delete).mockResolvedValue(rawProject as unknown as Awaited<ReturnType<typeof prisma.project.delete>>)
     await deleteProject('proj-1')
     expect(vi.mocked(prisma.project.delete)).toHaveBeenCalledWith({ where: { id: 'proj-1' } })
   })

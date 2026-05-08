@@ -6,11 +6,15 @@ import type { Initiative } from '@/types'
 
 export default function InitiativesPage() {
   const [initiatives, setInitiatives] = useState<Initiative[]>([])
-  const load = useCallback(async () => {
-    const res = await fetch('/api/initiatives')
-    setInitiatives(await res.json())
-  }, [])
-  useEffect(() => { load() }, [load])
+  const [refreshKey, setRefreshKey] = useState(0)
+  const load = useCallback(() => setRefreshKey((k) => k + 1), [])
+  // TODO(Phase 2b): migrate to TanStack Query (useProjects/useInitiatives/useCycles hooks)
+  // and add error handling consistent with IssuesPageClient.
+  useEffect(() => {
+    fetch('/api/initiatives')
+      .then((r) => r.json())
+      .then(setInitiatives)
+  }, [refreshKey])
   return (
     <>
       <Topbar title="Initiatives" />

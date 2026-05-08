@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getIssues, createIssue } from '@/lib/issues'
+import { listIssues, createIssue } from '@/server/domain/issues'
 import { createIssueSchema, issueListQuerySchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
 
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   if (!parsed.ok) return parsed.response
 
   try {
-    return NextResponse.json(await getIssues(parsed.data))
+    return NextResponse.json(await listIssues(parsed.data))
   } catch (e) {
     console.error('GET /api/issues failed', e)
     return NextResponse.json({ error: 'Failed to fetch issues' }, { status: 500 })

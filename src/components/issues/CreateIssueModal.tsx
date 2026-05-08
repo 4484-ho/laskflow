@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useIssueStore } from '@/stores/issueStore'
+import { useCreateIssue } from '@/hooks/useIssues'
 import { useUiStore } from '@/stores/uiStore'
 import type { IssuePriority } from '@/types'
 
@@ -13,46 +13,41 @@ interface Project {
 
 export function CreateIssueModal() {
   const { isCreateIssueModalOpen, closeCreateIssueModal } = useUiStore()
-  const { createIssue } = useIssueStore()
+  if (!isCreateIssueModalOpen) return null
+  return <CreateIssueForm onClose={closeCreateIssueModal} />
+}
+
+function CreateIssueForm({ onClose }: { onClose: () => void }) {
+  const createIssueMutation = useCreateIssue()
 
   const [title, setTitle] = useState('')
   const [projectId, setProjectId] = useState('')
   const [priority, setPriority] = useState<IssuePriority>('none')
   const [projects, setProjects] = useState<Project[]>([])
-  const [submitting, setSubmitting] = useState(false)
-
   useEffect(() => {
-    if (isCreateIssueModalOpen) {
-      fetch('/api/projects')
-        .then((r) => r.json())
-        .then((data: Project[]) => {
-          setProjects(data)
-          if (data.length > 0) setProjectId(data[0].id)
-        })
-    } else {
-      setTitle('')
-      setPriority('none')
-    }
-  }, [isCreateIssueModalOpen])
+    fetch('/api/projects')
+      .then((r) => r.json())
+      .then((data: Project[]) => {
+        setProjects(data)
+        if (data.length > 0) setProjectId(data[0].id)
+      })
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim() || !projectId) return
-    setSubmitting(true)
     try {
-      await createIssue({ title: title.trim(), projectId, priority })
-      closeCreateIssueModal()
-    } finally {
-      setSubmitting(false)
+      await createIssueMutation.mutateAsync({ title: title.trim(), projectId, priority })
+      onClose()
+    } catch {
+      // mutation error is tracked by createIssueMutation.isError
     }
   }
-
-  if (!isCreateIssueModalOpen) return null
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={(e) => e.target === e.currentTarget && closeCreateIssueModal()}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="bg-neutral-900 border border-neutral-700 rounded-xl w-full max-w-lg p-5 shadow-2xl">
         <h2 className="text-sm font-medium text-neutral-200 mb-4">New Issue</h2>
@@ -96,17 +91,17 @@ export function CreateIssueModal() {
           <div className="flex justify-end gap-2 mt-1">
             <button
               type="button"
-              onClick={closeCreateIssueModal}
+              onClick={onClose}
               className="px-4 py-1.5 rounded-md text-sm text-neutral-400 hover:text-neutral-200 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={!title.trim() || !projectId || submitting}
+              disabled={!title.trim() || !projectId || createIssueMutation.isPending}
               className="px-4 py-1.5 rounded-md text-sm bg-neutral-700 hover:bg-neutral-600 text-neutral-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              {submitting ? 'Creating...' : 'Create Issue'}
+              {createIssueMutation.isPending ? 'Creating...' : 'Create Issue'}
             </button>
           </div>
         </form>

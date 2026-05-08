@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getProjects, createProject } from '@/lib/projects'
+import { listProjects, createProject } from '@/server/domain/projects'
 import { createProjectSchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
 
 export async function GET() {
   try {
-    return NextResponse.json(await getProjects())
+    return NextResponse.json(await listProjects())
   } catch (e) {
     console.error('GET /api/projects failed', e)
     return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 })

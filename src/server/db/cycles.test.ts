@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 
-vi.mock('@/lib/prisma', () => ({
+vi.mock('@/server/db/prisma', () => ({
   prisma: {
     cycle: {
       findMany: vi.fn(),
@@ -12,8 +12,8 @@ vi.mock('@/lib/prisma', () => ({
   },
 }))
 
-import { prisma } from '@/lib/prisma'
-import { getCycles, createCycle } from '@/lib/cycles'
+import { prisma } from '@/server/db/prisma'
+import { getCycles, createCycle } from '@/server/db/cycles'
 
 const rawCycle = {
   id: 'cycle-1',
@@ -30,7 +30,7 @@ beforeEach(() => vi.clearAllMocks())
 
 describe('getCycles', () => {
   it('returns cycles ordered by startDate', async () => {
-    vi.mocked(prisma.cycle.findMany).mockResolvedValue([rawCycle] as any)
+    vi.mocked(prisma.cycle.findMany).mockResolvedValue([rawCycle] as unknown as Awaited<ReturnType<typeof prisma.cycle.findMany>>)
     const result = await getCycles()
     expect(result[0].title).toBe('Sprint 2026-W17')
   })
@@ -38,7 +38,7 @@ describe('getCycles', () => {
 
 describe('createCycle', () => {
   it('creates a cycle with startDate and endDate', async () => {
-    vi.mocked(prisma.cycle.create).mockResolvedValue(rawCycle as any)
+    vi.mocked(prisma.cycle.create).mockResolvedValue(rawCycle as unknown as Awaited<ReturnType<typeof prisma.cycle.create>>)
     const result = await createCycle({
       title: 'Sprint 2026-W17',
       startDate: '2026-04-21',

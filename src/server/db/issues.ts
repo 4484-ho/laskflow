@@ -1,5 +1,5 @@
 import type { Issue as PrismaIssue } from '@prisma/client'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/server/db/prisma'
 import type { Issue, IssueStatus, IssuePriority, CreateIssueInput, UpdateIssueInput } from '@/types'
 
 interface GetIssuesParams {
@@ -37,7 +37,9 @@ export async function getIssue(id: string): Promise<Issue | null> {
   return issue ? parseIssue(issue) : null
 }
 
-export async function createIssue(data: CreateIssueInput): Promise<Issue> {
+export async function createIssue(
+  data: CreateIssueInput & { sortOrder: string },
+): Promise<Issue> {
   const issue = await prisma.$transaction(async (tx) => {
     const project = await tx.project.update({
       where: { id: data.projectId },
@@ -56,7 +58,7 @@ export async function createIssue(data: CreateIssueInput): Promise<Issue> {
         labels: JSON.stringify(data.labels ?? []),
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
         estimate: data.estimate ?? null,
-        sortOrder: Date.now(),
+        sortOrder: data.sortOrder,
       },
     })
   })
@@ -74,7 +76,6 @@ export async function updateIssue(id: string, data: UpdateIssueInput): Promise<I
   if (data.labels !== undefined) updateData.labels = JSON.stringify(data.labels)
   if (data.dueDate !== undefined) updateData.dueDate = data.dueDate ? new Date(data.dueDate) : null
   if (data.estimate !== undefined) updateData.estimate = data.estimate
-  if (data.sortOrder !== undefined) updateData.sortOrder = data.sortOrder
 
   const issue = await prisma.issue.update({ where: { id }, data: updateData })
   return parseIssue(issue)
@@ -82,4 +83,9 @@ export async function updateIssue(id: string, data: UpdateIssueInput): Promise<I
 
 export async function deleteIssue(id: string): Promise<void> {
   await prisma.issue.delete({ where: { id } })
+}
+
+export async function updateSortOrder(id: string, sortOrder: string): Promise<Issue> {
+  const issue = await prisma.issue.update({ where: { id }, data: { sortOrder } })
+  return parseIssue(issue)
 }

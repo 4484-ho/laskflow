@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/server/db/prisma'
 import type { Cycle, CycleStatus, CreateCycleInput } from '@/types'
 
 interface UpdateCycleInput {

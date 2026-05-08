@@ -47,7 +47,6 @@ export const updateIssueSchema = z.object({
   labels: z.array(z.string()).optional(),
   dueDate: isoDateString.nullable().optional(),
   estimate: z.number().nonnegative().nullable().optional(),
-  sortOrder: z.number().optional(),
 })
 
 export const createProjectSchema = z.object({
@@ -100,4 +99,9 @@ export const updateCycleSchema = z.object({
   status: cycleStatusSchema.optional(),
   startDate: isoDateString.optional(),
   endDate: isoDateString.optional(),
+})
+
+export const moveIssueSchema = z.object({
+  beforeId: z.string().min(1).nullable().optional(),
+  afterId: z.string().min(1).nullable().optional(),
 })
