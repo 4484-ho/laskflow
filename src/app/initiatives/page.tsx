@@ -8,6 +8,8 @@ export default function InitiativesPage() {
   const [initiatives, setInitiatives] = useState<Initiative[]>([])
   const [refreshKey, setRefreshKey] = useState(0)
   const load = useCallback(() => setRefreshKey((k) => k + 1), [])
+  // TODO(Phase 2b): migrate to TanStack Query (useProjects/useInitiatives/useCycles hooks)
+  // and add error handling consistent with IssuesPageClient.
   useEffect(() => {
     fetch('/api/initiatives')
       .then((r) => r.json())

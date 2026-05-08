@@ -96,6 +96,9 @@ export function useUpdateIssue() {
     onMutate: async ({ id, data }) => {
       await qc.cancelQueries({ queryKey: queryKeys.issues.all })
       const previous = qc.getQueriesData<Issue[]>({ queryKey: queryKeys.issues.all })
+      // setQueriesData matches both list and detail caches under queryKeys.issues.all.
+      // Array.isArray guard ensures detail entries (single Issue) are skipped safely.
+      // Detail cache optimistic update is deferred to Phase 2b (slideover implementation).
       qc.setQueriesData<Issue[]>(
         { queryKey: queryKeys.issues.all },
         (old) =>

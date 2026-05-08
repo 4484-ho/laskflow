@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
 import { POST } from './route'
-import { NotFoundError } from '@/lib/errors'
+import { NotFoundError, BadRequestError } from '@/lib/errors'
 
 vi.mock('@/server/domain/issues', () => ({
   moveIssue: vi.fn(),
@@ -128,6 +128,19 @@ describe('POST /api/issues/[id]/move', () => {
     const res = await POST(req, { params: Promise.resolve({ id: 'issue-1' }) })
 
     expect(res.status).toBe(404)
+    const json = await res.json()
+    expect(json).toHaveProperty('error')
+  })
+
+  it('returns 400 when moveIssue throws BadRequestError (beforeKey >= afterKey)', async () => {
+    ;(domain.moveIssue as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new BadRequestError('moveIssue: beforeId sort key must precede afterId sort key (got "a5" >= "a1")'),
+    )
+
+    const req = makeRequest({ beforeId: 'issue-5', afterId: 'issue-1' })
+    const res = await POST(req, { params: Promise.resolve({ id: 'issue-1' }) })
+
+    expect(res.status).toBe(400)
     const json = await res.json()
     expect(json).toHaveProperty('error')
   })

@@ -10,6 +10,8 @@ export default function ProjectsPage() {
   const [refreshKey, setRefreshKey] = useState(0)
   const load = useCallback(() => setRefreshKey((k) => k + 1), [])
 
+  // TODO(Phase 2b): migrate to TanStack Query (useProjects/useInitiatives/useCycles hooks)
+  // and add error handling consistent with IssuesPageClient.
   useEffect(() => {
     fetch('/api/projects')
       .then((r) => r.json())

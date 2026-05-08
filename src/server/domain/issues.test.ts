@@ -7,6 +7,7 @@ import {
   deleteIssue,
   moveIssue,   // NEW
 } from '@/server/domain/issues'
+import { BadRequestError } from '@/lib/errors'
 
 vi.mock('@/server/db/issues', () => ({
   getIssues: vi.fn(),
@@ -217,5 +218,25 @@ describe('domain/issues — moveIssue', () => {
     await expect(
       moveIssue('deleted-issue', { beforeId: null, afterId: null }),
     ).rejects.toThrow(/issue.*not found/i)
+  })
+
+  it('rejects with BadRequestError when beforeId === id', async () => {
+    ;(db.getIssue as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'target', sortOrder: 'a0' })
+    await expect(
+      moveIssue('target', { beforeId: 'target', afterId: null }),
+    ).rejects.toBeInstanceOf(BadRequestError)
+    await expect(
+      moveIssue('target', { beforeId: 'target', afterId: null }),
+    ).rejects.toThrow(/itself|cannot reference/i)
+  })
+
+  it('rejects with BadRequestError when afterId === id', async () => {
+    ;(db.getIssue as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'target', sortOrder: 'a0' })
+    await expect(
+      moveIssue('target', { beforeId: null, afterId: 'target' }),
+    ).rejects.toBeInstanceOf(BadRequestError)
+    await expect(
+      moveIssue('target', { beforeId: null, afterId: 'target' }),
+    ).rejects.toThrow(/itself|cannot reference/i)
   })
 })

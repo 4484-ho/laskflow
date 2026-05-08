@@ -15,6 +15,10 @@ Phase 1 では `Issue.sortOrder` を `Float` で持ち、作成時に `Date.now(
 - 衝突対策のリバランス関数 `rebalanceSortOrders(scope)` も用意するが、運用上は予防的(個人利用なので発火しない想定)
 - 対象は **Issue のみ**。サブタスク並び替えや他エンティティの並び替えは Phase 4 候補
 
+## Migration
+
+SQL マイグレーションは既存の全レコードの `sortOrder` を `'a0'` プレースホルダーに設定する。その後、`scripts/migrate-sort-order.ts` を実行して `createdAt` 昇順で正しい一意キーを採番する必要がある。`prisma migrate deploy` だけでは不十分で、**必ず** `pnpm migrate:sort-order` を続けて実行すること。
+
 ## Consequences
 
 - + 任意箇所への挿入が `O(1)` で可能、リバランス不要

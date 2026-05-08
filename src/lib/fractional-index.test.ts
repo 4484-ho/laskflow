@@ -66,5 +66,10 @@ describe('fractional-index', () => {
     it('rejects null', () => {
       expect(isValidKey(null)).toBe(false)
     })
+
+    it('rejects strings with special characters', () => {
+      expect(isValidKey('a!b')).toBe(false)
+      expect(isValidKey('a b')).toBe(false)
+    })
   })
 })

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { moveIssue } from '@/server/domain/issues'
 import { moveIssueSchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
-import { NotFoundError } from '@/lib/errors'
+import { NotFoundError, BadRequestError } from '@/lib/errors'
 
 export async function POST(
   request: NextRequest,
@@ -26,6 +26,9 @@ export async function POST(
     const issue = await moveIssue(id, { beforeId, afterId })
     return NextResponse.json(issue)
   } catch (e) {
+    if (e instanceof BadRequestError) {
+      return NextResponse.json({ error: e.message }, { status: 400 })
+    }
     if (e instanceof NotFoundError) {
       return NextResponse.json({ error: e.message }, { status: 404 })
     }

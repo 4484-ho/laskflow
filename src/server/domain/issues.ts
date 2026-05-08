@@ -6,7 +6,7 @@ import {
 } from '@/lib/schemas'
 import * as db from '@/server/db/issues'
 import { keyBetween } from '@/lib/fractional-index'
-import { NotFoundError } from '@/lib/errors'
+import { NotFoundError, BadRequestError } from '@/lib/errors'
 import type { Issue } from '@/types'
 
 // z.input gives the pre-parse (caller-provided) shape.
@@ -22,7 +22,10 @@ export interface MoveIssueParams {
 
 export async function createIssue(input: CreateIssueDomainInput): Promise<Issue> {
   const parsed = createIssueSchema.parse(input)
-  // Assign sortOrder after the last existing issue in this project (or a fresh key if none)
+  // TODO: Race condition — read-then-write is not atomic. Concurrent creates for the same
+  // project may generate duplicate sortOrder keys. Fix: move sortOrder computation into
+  // db.createIssue using a prisma.$transaction with findFirst. Acceptable for single-user
+  // use in Phase 2a; address before multi-user or high-frequency create scenarios.
   const existing = await db.getIssues({ projectId: parsed.projectId })
   // db.getIssues returns issues ordered by sortOrder asc, so last element is the max key
   const lastKey = existing.at(-1)?.sortOrder ?? null
@@ -42,6 +45,10 @@ export async function moveIssue(id: string, params: MoveIssueParams): Promise<Is
   const target = await db.getIssue(id)
   if (!target) throw new NotFoundError(`moveIssue: issue "${id}" not found`)
 
+  if (params.beforeId === id || params.afterId === id) {
+    throw new BadRequestError(`moveIssue: issue "${id}" cannot reference itself as a neighbor`)
+  }
+
   let beforeKey: string | null = null
   if (params.beforeId) {
     const before = await db.getIssue(params.beforeId)
@@ -57,7 +64,7 @@ export async function moveIssue(id: string, params: MoveIssueParams): Promise<Is
   }
 
   if (beforeKey !== null && afterKey !== null && beforeKey >= afterKey) {
-    throw new Error(
+    throw new BadRequestError(
       `moveIssue: beforeId sort key must precede afterId sort key (got "${beforeKey}" >= "${afterKey}")`,
     )
   }

@@ -21,8 +21,9 @@ export function keyBetween(before: string | null, after: string | null): string 
 }
 
 /**
- * Basic validity check: must be a non-empty string.
+ * Validity check: must be a non-empty string containing only fractional-indexing
+ * characters (base62: digits and ASCII letters).
  */
 export function isValidKey(key: unknown): key is string {
-  return typeof key === 'string' && key.length > 0
+  return typeof key === 'string' && /^[0-9A-Za-z]+$/.test(key)
 }
