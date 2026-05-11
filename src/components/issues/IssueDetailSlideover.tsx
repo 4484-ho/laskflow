@@ -49,7 +49,7 @@ export function IssueDetailSlideover({ issueId, onClose }: IssueDetailSlideoverP
         onClick={onClose}
         aria-hidden="true"
       />
-      <aside className="fixed right-0 top-0 bottom-0 z-50 w-[600px] flex flex-col border-l border-neutral-800 bg-neutral-950 shadow-2xl">
+      <aside aria-label="Issue detail" className="fixed right-0 top-0 bottom-0 z-50 w-[600px] flex flex-col border-l border-neutral-800 bg-neutral-950 shadow-2xl">
         <div className="flex items-center gap-3 px-4 py-3 border-b border-neutral-800 shrink-0">
           <span className="text-xs font-mono text-neutral-500">{issue.identifier}</span>
           <input
@@ -70,7 +70,7 @@ export function IssueDetailSlideover({ issueId, onClose }: IssueDetailSlideoverP
               <span className="text-[10px] uppercase tracking-wider text-neutral-500">Description</span>
             </div>
             <DescriptionEditor
-              issueId={issue.id}
+              key={issue.id}
               initialValue={issue.description}
               onSave={(val) => updateIssue({ id: issue.id, data: { description: val } })}
             />

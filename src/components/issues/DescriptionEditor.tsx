@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef } from 'react'
 import dynamic from 'next/dynamic'
 import '@mdxeditor/editor/style.css'
 
@@ -28,25 +29,25 @@ const MDXEditor = dynamic(
 )
 
 interface DescriptionEditorProps {
-  issueId: string
   initialValue: string | null
   onSave: (value: string) => void
 }
 
 export function DescriptionEditor({ initialValue, onSave }: DescriptionEditorProps) {
+  const currentMarkdown = useRef(initialValue ?? '')
+
   return (
     <div
       className="min-h-[200px] rounded border border-transparent hover:border-neutral-700 focus-within:border-neutral-600 transition-colors"
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget)) {
-          const el = e.currentTarget.querySelector('[contenteditable]') as HTMLElement | null
-          onSave(el?.textContent ?? '')
+          onSave(currentMarkdown.current)
         }
       }}
     >
       <MDXEditor
         markdown={initialValue ?? ''}
-        onChange={() => {}}
+        onChange={(val) => { currentMarkdown.current = val }}
       />
     </div>
   )

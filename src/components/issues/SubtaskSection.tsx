@@ -20,6 +20,7 @@ export function SubtaskSection({ parentIssue }: SubtaskSectionProps) {
   const handleCreate = () => {
     const title = inputRef.current?.value.trim()
     if (!title) { setCreating(false); return }
+    if (inputRef.current) inputRef.current.value = ''
     createIssue(
       { title, projectId: parentIssue.projectId, parentId: parentIssue.id, status: 'todo' },
       { onSuccess: () => { setCreating(false) } },
@@ -39,6 +40,7 @@ export function SubtaskSection({ parentIssue }: SubtaskSectionProps) {
             <input
               type="checkbox"
               checked={sub.status === 'done'}
+              aria-label={`Mark "${sub.title}" as done`}
               onChange={(e) =>
                 updateIssue({ id: sub.id, data: { status: e.target.checked ? 'done' : 'todo' } })
               }
