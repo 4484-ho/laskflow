@@ -1,7 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { updateInitiative, deleteInitiative } from '@/server/domain/initiatives'
+import { getInitiative, updateInitiative, deleteInitiative } from '@/server/domain/initiatives'
 import { updateInitiativeSchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params
+  try {
+    const initiative = await getInitiative(id)
+    if (!initiative) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    return NextResponse.json(initiative)
+  } catch (e) {
+    console.error(`GET /api/initiatives/${id} failed`, e)
+    return NextResponse.json({ error: 'Failed to fetch initiative' }, { status: 500 })
+  }
+}
 
 export async function PATCH(
   request: NextRequest,
