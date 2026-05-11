@@ -28,6 +28,8 @@ const STATUS_LABELS: Record<IssueStatus, string> = {
   in_review: 'In Review', done: 'Done', cancelled: 'Cancelled',
 }
 
+const POINTER_SENSOR_OPTIONS = { activationConstraint: { distance: 5 } }
+
 interface IssueListProps {
   issues: Issue[]
   onIssueClick?: (issueId: string) => void
@@ -44,7 +46,7 @@ function StatusGroup({
 }) {
   const { mutate: moveIssue } = useMoveIssue()
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(PointerSensor, POINTER_SENSOR_OPTIONS),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
 

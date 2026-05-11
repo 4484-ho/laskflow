@@ -49,7 +49,6 @@ export function IssueRow({ issue, onClick }: IssueRowProps) {
       style={style}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.() } }}
-      role="button"
       tabIndex={0}
       data-testid="issue-row"
       className="flex items-center gap-3 px-4 py-2 hover:bg-neutral-900/50 group rounded-md cursor-pointer"
