@@ -1,10 +1,105 @@
-# laskflow
+# Taskflow (laskflow)
+
 A minimal, local-first task manager for solo developers. Inspired by Linear, powered by Claude.
 
-## Phase 2a Notes
+## Tech Stack
 
-- DB アクセスは `src/server/db/`、ビジネスルールは `src/server/domain/` に分離。client からの import は ESLint で禁止。
-- **初回セットアップ時の注意:** `prisma migrate deploy` 後に `pnpm migrate:sort-order` を実行して既存 Issue の sortOrder を採番してください。
-- サーバ状態は TanStack Query で管理（Issues 一覧は RSC + HydrationBoundary 採用）。Zustand は UI ステート専用。
-- `Issue.sortOrder` は fractional-indexing（string）。並び替えは `POST /api/issues/[id]/move`。
-- 詳細は `docs/superpowers/specs/2026-05-01-taskflow-phase2-design.md` および `docs/adr/0004-0006`。
+- **Framework:** Next.js 16 (App Router, RSC + HydrationBoundary)
+- **UI:** React 19, Tailwind CSS (dark theme)
+- **Database:** Prisma 7 + SQLite
+- **State:** TanStack Query v5 (server state), Zustand (UI state)
+- **Testing:** Vitest (unit), Playwright (E2E)
+
+## Features
+
+### Issue Management
+
+- **CRUD** -- Issue の作成・編集・削除。Project に紐付き、`{prefix}-{counter}` 形式の identifier を自動採番
+- **Status workflow** -- backlog / todo / in_progress / in_review / done / cancelled の 6 状態。一覧でワンクリック遷移
+- **Priority** -- urgent / high / medium / low / none の 5 段階
+- **Detail slideover** -- Issue 行クリックで右側パネルを展開。URL に `?selected=<id>` を反映し、リロードで復元
+- **Inline title edit** -- スライドオーバー内でタイトルを直接編集（blur で保存）
+- **Description editor** -- MDXEditor による Markdown 編集（`next/dynamic` で SSR 無効の遅延読込）
+- **Subtasks** -- 親 Issue に子タスクを追加。チェックボックスで done/todo を切り替え。一覧では `done/total` バッジを表示
+- **Meta sidebar** -- Status, Priority, Project, Cycle, Due, Created をインライン編集
+- **Drag & drop reordering** -- @dnd-kit による同一ステータス内の並び替え。楽観的更新 + fractional-indexing でサーバー永続化
+- **Filter & sort bar** -- Status, Project, Cycle, Initiative, Sort の各フィルタ。URL 検索パラメータで状態管理しリロード後も維持
+
+### Command Palette
+
+- **Cmd+K / Ctrl+K** でグローバル検索パレットを表示
+- Issue, Project, Initiative, Cycle を横断検索
+- 選択で該当ページ/スライドオーバーへ遷移
+- "Create new issue" アクション
+
+### Project Management
+
+- **Initiative** -- 上位の戦略目標。Initiative > Project > Issue の階層
+- **Project** -- Issue のグループ単位。prefix による識別子管理、issueCounter で自動採番
+- **Cycle** -- 期間ベースのスプリント。startDate / endDate で期間定義
+
+### Detail Pages
+
+- **Initiative detail** (`/initiatives/[id]`) -- タイトル・説明・ステータス・日付を表示
+- **Project detail** (`/projects/[id]`) -- 所属 Issue 一覧 + スライドオーバー連携
+- **Cycle detail** (`/cycles/[id]`) -- 進捗バー（完了率 vs 経過日数で色分け: 緑/黄/赤）+ Issue 一覧
+
+### List Pages
+
+- **Issues** (`/issues`) -- ステータスごとにグループ化した Issue 一覧。フィルタ・D&D 対応
+- **Initiatives** (`/initiatives`) -- Initiative 一覧。インライン作成
+- **Projects** (`/projects`) -- Project 一覧。インライン作成
+- **Cycles** (`/cycles`) -- Cycle 一覧。インライン作成
+
+### API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/issues` | Issue 一覧（filter: status, priority, projectId, cycleId, initiativeId, sort） |
+| POST | `/api/issues` | Issue 作成 |
+| GET | `/api/issues/[id]` | Issue 詳細（children include） |
+| PATCH | `/api/issues/[id]` | Issue 更新 |
+| DELETE | `/api/issues/[id]` | Issue 削除 |
+| POST | `/api/issues/[id]/move` | Issue 並び替え（beforeId / afterId） |
+| GET | `/api/projects` | Project 一覧 |
+| POST | `/api/projects` | Project 作成 |
+| GET | `/api/projects/[id]` | Project 詳細 |
+| PATCH | `/api/projects/[id]` | Project 更新 |
+| DELETE | `/api/projects/[id]` | Project 削除 |
+| GET | `/api/initiatives` | Initiative 一覧 |
+| POST | `/api/initiatives` | Initiative 作成 |
+| GET | `/api/initiatives/[id]` | Initiative 詳細 |
+| PATCH | `/api/initiatives/[id]` | Initiative 更新 |
+| DELETE | `/api/initiatives/[id]` | Initiative 削除 |
+| GET | `/api/cycles` | Cycle 一覧 |
+| POST | `/api/cycles` | Cycle 作成 |
+| GET | `/api/cycles/[id]` | Cycle 詳細 |
+| PATCH | `/api/cycles/[id]` | Cycle 更新 |
+| DELETE | `/api/cycles/[id]` | Cycle 削除 |
+| GET | `/api/search?q=` | 横断検索（issues, projects, initiatives, cycles） |
+
+### Architecture
+
+- **Server layer:** `src/server/db/` (Prisma CRUD) + `src/server/domain/` (business logic + Zod validation)
+- **Client boundary:** ESLint `no-restricted-imports` で `src/components/**`, `src/hooks/**`, `src/stores/**` から `@/server/**` への import を禁止
+- **Data fetching:** RSC で `prefetchQuery` → `HydrationBoundary` → Client Component で `useQuery`
+- **Sort order:** fractional-indexing (string) で D&D 並び替えを永続化。`POST /api/issues/[id]/move` で `keyBetween` 計算
+
+## Setup
+
+```bash
+pnpm install
+pnpm exec prisma migrate deploy
+pnpm migrate:sort-order   # 既存 Issue の sortOrder を採番
+pnpm dev
+```
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | 開発サーバー起動 |
+| `pnpm build` | プロダクションビルド |
+| `pnpm test` | Vitest ユニットテスト |
+| `pnpm test:e2e` | Playwright E2E テスト |
+| `pnpm lint` | ESLint |
