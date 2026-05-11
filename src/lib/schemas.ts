@@ -42,6 +42,7 @@ export const updateIssueSchema = z.object({
   description: z.string().nullable().optional(),
   status: issueStatusSchema.optional(),
   priority: issuePrioritySchema.optional(),
+  projectId: z.string().min(1).nullable().optional(),
   cycleId: z.string().min(1).nullable().optional(),
   parentId: z.string().min(1).nullable().optional(),
   labels: z.array(z.string()).optional(),

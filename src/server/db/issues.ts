@@ -2,11 +2,14 @@ import type { Issue as PrismaIssue } from '@prisma/client'
 import { prisma } from '@/server/db/prisma'
 import type { Issue, IssueStatus, IssuePriority, CreateIssueInput, UpdateIssueInput } from '@/types'
 
+type PrismaIssueWithChildren = PrismaIssue & { children: PrismaIssue[] }
+
 interface GetIssuesParams {
   status?: IssueStatus
   priority?: IssuePriority
   projectId?: string
   cycleId?: string
+  includeSubtasks?: boolean
 }
 
 function parseIssue(raw: PrismaIssue): Issue {
@@ -18,12 +21,20 @@ function parseIssue(raw: PrismaIssue): Issue {
   }
 }
 
+function parseIssueWithChildren(raw: PrismaIssueWithChildren): Issue {
+  return {
+    ...parseIssue(raw),
+    children: raw.children.map(parseIssue),
+  }
+}
+
 export async function getIssues(params: GetIssuesParams = {}): Promise<Issue[]> {
   const where: Record<string, unknown> = {}
   if (params.status) where.status = params.status
   if (params.priority) where.priority = params.priority
   if (params.projectId) where.projectId = params.projectId
   if (params.cycleId) where.cycleId = params.cycleId
+  if (!params.includeSubtasks) where.parentId = null  // hide subtasks from list
 
   const issues = await prisma.issue.findMany({
     where,
@@ -33,8 +44,11 @@ export async function getIssues(params: GetIssuesParams = {}): Promise<Issue[]> 
 }
 
 export async function getIssue(id: string): Promise<Issue | null> {
-  const issue = await prisma.issue.findUnique({ where: { id } })
-  return issue ? parseIssue(issue) : null
+  const issue = await prisma.issue.findUnique({
+    where: { id },
+    include: { children: true },
+  })
+  return issue ? parseIssueWithChildren(issue as PrismaIssueWithChildren) : null
 }
 
 export async function createIssue(
@@ -71,6 +85,7 @@ export async function updateIssue(id: string, data: UpdateIssueInput): Promise<I
   if (data.description !== undefined) updateData.description = data.description
   if (data.status !== undefined) updateData.status = data.status
   if (data.priority !== undefined) updateData.priority = data.priority
+  if (data.projectId !== undefined) updateData.projectId = data.projectId  // ADD
   if (data.cycleId !== undefined) updateData.cycleId = data.cycleId
   if (data.parentId !== undefined) updateData.parentId = data.parentId
   if (data.labels !== undefined) updateData.labels = JSON.stringify(data.labels)

@@ -48,6 +48,17 @@ describe('domain/issues', () => {
         expect.objectContaining({ title: 'hello', projectId: 'p1' }),
       )
     })
+
+    it('passes parentId to db.createIssue', async () => {
+      ;(db.getIssues as ReturnType<typeof vi.fn>).mockResolvedValue([])
+      ;(db.createIssue as ReturnType<typeof vi.fn>).mockResolvedValue({
+        id: 'i1', title: 'sub', projectId: 'p1', parentId: 'parent1',
+      })
+      await createIssue({ title: 'sub', projectId: 'p1', parentId: 'parent1' })
+      expect(db.createIssue).toHaveBeenCalledWith(
+        expect.objectContaining({ parentId: 'parent1' }),
+      )
+    })
   })
 
   describe('updateIssue', () => {
@@ -87,6 +98,12 @@ describe('domain/issues', () => {
       ;(db.getIssues as ReturnType<typeof vi.fn>).mockResolvedValue([])
       await listIssues({ status: 'todo' })
       expect(db.getIssues).toHaveBeenCalledWith(expect.objectContaining({ status: 'todo' }))
+    })
+
+    it('calls db.getIssues without includeSubtasks by default', async () => {
+      ;(db.getIssues as ReturnType<typeof vi.fn>).mockResolvedValue([])
+      await listIssues({})
+      expect(db.getIssues).toHaveBeenCalledWith(expect.not.objectContaining({ includeSubtasks: true }))
     })
   })
 

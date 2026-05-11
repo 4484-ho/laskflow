@@ -52,6 +52,7 @@ export interface Issue {
   sortOrder: string
   createdAt: Date
   updatedAt: Date
+  children?: Issue[]
 }
 
 export interface Cycle {
@@ -84,6 +85,7 @@ export interface UpdateIssueInput {
   description?: string | null
   status?: IssueStatus
   priority?: IssuePriority
+  projectId?: string | null
   cycleId?: string | null
   parentId?: string | null
   labels?: string[]

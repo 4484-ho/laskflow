@@ -74,7 +74,8 @@ describe('getIssue', () => {
   })
 
   it('returns parsed issue when found', async () => {
-    vi.mocked(prisma.issue.findUnique).mockResolvedValue(rawIssue as unknown as Awaited<ReturnType<typeof prisma.issue.findUnique>>)
+    const rawIssueWithChildren = { ...rawIssue, children: [] }
+    vi.mocked(prisma.issue.findUnique).mockResolvedValue(rawIssueWithChildren as unknown as Awaited<ReturnType<typeof prisma.issue.findUnique>>)
 
     const result = await getIssue('issue-1')
 
