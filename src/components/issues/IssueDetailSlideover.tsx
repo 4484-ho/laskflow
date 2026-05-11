@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { useIssue, useUpdateIssue } from '@/hooks/useIssues'
 import { MetaSidebar } from './MetaSidebar'
@@ -13,7 +13,11 @@ interface IssueDetailSlideoverProps {
 export function IssueDetailSlideover({ issueId, onClose }: IssueDetailSlideoverProps) {
   const { data: issue, isLoading } = useIssue(issueId)
   const { mutate: updateIssue } = useUpdateIssue()
-  const titleRef = useRef<HTMLInputElement>(null)
+  const [localTitle, setLocalTitle] = useState(issue?.title ?? '')
+
+  useEffect(() => {
+    if (issue) setLocalTitle(issue.title)
+  }, [issue?.id, issue?.title])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -30,7 +34,7 @@ export function IssueDetailSlideover({ issueId, onClose }: IssueDetailSlideoverP
   }
 
   const saveTitle = () => {
-    const val = titleRef.current?.value.trim()
+    const val = localTitle.trim()
     if (val && val !== issue.title) {
       updateIssue({ id: issue.id, data: { title: val } })
     }
@@ -47,13 +51,13 @@ export function IssueDetailSlideover({ issueId, onClose }: IssueDetailSlideoverP
         <div className="flex items-center gap-3 px-4 py-3 border-b border-neutral-800 shrink-0">
           <span className="text-xs font-mono text-neutral-500">{issue.identifier}</span>
           <input
-            ref={titleRef}
-            defaultValue={issue.title}
+            value={localTitle}
+            onChange={(e) => setLocalTitle(e.target.value)}
             onBlur={saveTitle}
-            onKeyDown={(e) => { if (e.key === 'Enter') titleRef.current?.blur() }}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
             className="flex-1 bg-transparent text-sm font-medium text-neutral-100 outline-none"
           />
-          <button onClick={onClose} className="text-neutral-500 hover:text-neutral-200">
+          <button onClick={onClose} aria-label="Close" className="text-neutral-500 hover:text-neutral-200">
             <X size={16} />
           </button>
         </div>

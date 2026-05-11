@@ -48,10 +48,11 @@ export function MetaSidebar({ issue }: MetaSidebarProps) {
 
       <Field label="Project">
         <select
-          value={issue.projectId}
-          onChange={(e) => update({ projectId: e.target.value })}
+          value={issue.projectId ?? ''}
+          onChange={(e) => update({ projectId: e.target.value || null })}
           className="w-full bg-neutral-800 text-neutral-200 text-xs rounded px-2 py-1 border border-neutral-700"
         >
+          <option value="">No project</option>
           {projects.map((p) => (
             <option key={p.id} value={p.id}>{p.title}</option>
           ))}

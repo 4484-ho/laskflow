@@ -1,3 +1,5 @@
+'use client'
+
 import { IssueRow } from './IssueRow'
 import type { Issue, IssueStatus } from '@/types'
 
