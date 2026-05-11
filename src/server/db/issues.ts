@@ -85,7 +85,7 @@ export async function updateIssue(id: string, data: UpdateIssueInput): Promise<I
   if (data.description !== undefined) updateData.description = data.description
   if (data.status !== undefined) updateData.status = data.status
   if (data.priority !== undefined) updateData.priority = data.priority
-  if (data.projectId !== undefined) updateData.projectId = data.projectId  // ADD
+  if (data.projectId !== undefined) updateData.projectId = data.projectId
   if (data.cycleId !== undefined) updateData.cycleId = data.cycleId
   if (data.parentId !== undefined) updateData.parentId = data.parentId
   if (data.labels !== undefined) updateData.labels = JSON.stringify(data.labels)
