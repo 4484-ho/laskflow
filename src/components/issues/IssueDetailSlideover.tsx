@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { useIssue, useUpdateIssue } from '@/hooks/useIssues'
 import { MetaSidebar } from './MetaSidebar'
+import { DescriptionEditor } from './DescriptionEditor'
+import { SubtaskSection } from './SubtaskSection'
 
 interface IssueDetailSlideoverProps {
   issueId: string
@@ -64,7 +66,15 @@ export function IssueDetailSlideover({ issueId, onClose }: IssueDetailSlideoverP
 
         <div className="flex flex-1 overflow-hidden">
           <div className="flex-1 overflow-y-auto p-4">
-            <p className="text-xs text-neutral-500 italic">Description editor (Task 4)</p>
+            <div className="mb-2">
+              <span className="text-[10px] uppercase tracking-wider text-neutral-500">Description</span>
+            </div>
+            <DescriptionEditor
+              issueId={issue.id}
+              initialValue={issue.description}
+              onSave={(val) => updateIssue({ id: issue.id, data: { description: val } })}
+            />
+            <SubtaskSection parentIssue={issue} />
           </div>
           <MetaSidebar issue={issue} />
         </div>
