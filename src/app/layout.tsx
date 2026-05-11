@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { QueryProvider } from '@/components/providers/QueryProvider'
+import { CommandPalette } from '@/components/CommandPalette'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="flex-1 flex flex-col overflow-hidden">
             {children}
           </main>
+          <CommandPalette />
         </QueryProvider>
       </body>
     </html>
