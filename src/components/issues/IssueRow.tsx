@@ -1,5 +1,8 @@
 'use client'
 
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { GripVertical } from 'lucide-react'
 import { useUpdateIssue } from '@/hooks/useIssues'
 import type { Issue, IssueStatus } from '@/types'
 
@@ -25,6 +28,16 @@ export function IssueRow({ issue, onClick }: IssueRowProps) {
   const updateIssueMutation = useUpdateIssue()
   const statusInfo = STATUS_ICONS[issue.status]
 
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: issue.id,
+  })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  }
+
   const cycleStatus = (e: React.MouseEvent) => {
     e.stopPropagation()
     updateIssueMutation.mutate({ id: issue.id, data: { status: statusInfo.next } })
@@ -32,6 +45,8 @@ export function IssueRow({ issue, onClick }: IssueRowProps) {
 
   return (
     <div
+      ref={setNodeRef}
+      style={style}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.() } }}
       role="button"
@@ -39,6 +54,16 @@ export function IssueRow({ issue, onClick }: IssueRowProps) {
       data-testid="issue-row"
       className="flex items-center gap-3 px-4 py-2 hover:bg-neutral-900/50 group rounded-md cursor-pointer"
     >
+      <button
+        {...attributes}
+        {...listeners}
+        onClick={(e) => e.stopPropagation()}
+        className="text-neutral-700 hover:text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 cursor-grab active:cursor-grabbing"
+        aria-label="Drag to reorder"
+      >
+        <GripVertical size={14} />
+      </button>
+
       <button
         onClick={cycleStatus}
         title={`${statusInfo.label} → ${STATUS_ICONS[statusInfo.next].label}`}

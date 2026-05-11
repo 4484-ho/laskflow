@@ -132,11 +132,29 @@ export function useMoveIssue() {
   return useMutation({
     mutationFn: ({ id, beforeId, afterId }: { id: string; beforeId: string | null; afterId: string | null }) =>
       postMoveIssue(id, { beforeId, afterId }),
-    onMutate: async () => {
+    onMutate: async ({ id, beforeId, afterId }) => {
       await qc.cancelQueries({ queryKey: queryKeys.issues.all })
       const previous = qc.getQueriesData<Issue[]>({ queryKey: queryKeys.issues.all })
-      // 楽観的に即時並べ替えるロジックは Phase 2b の D&D 実装と一緒に追加。
-      // Phase 2a では invalidate のみで十分。
+      qc.setQueriesData<Issue[]>(
+        { queryKey: queryKeys.issues.all },
+        (old) => {
+          if (!Array.isArray(old)) return old
+          const items = [...old]
+          const draggedIdx = items.findIndex((i) => i.id === id)
+          if (draggedIdx === -1) return old
+          const [dragged] = items.splice(draggedIdx, 1)
+          if (afterId) {
+            const afterIdx = items.findIndex((i) => i.id === afterId)
+            items.splice(afterIdx !== -1 ? afterIdx : items.length, 0, dragged)
+          } else if (beforeId) {
+            const beforeIdx = items.findIndex((i) => i.id === beforeId)
+            items.splice(beforeIdx !== -1 ? beforeIdx + 1 : items.length, 0, dragged)
+          } else {
+            items.push(dragged)
+          }
+          return items
+        },
+      )
       return { previous }
     },
     onError: (_err, _vars, ctx) => {
