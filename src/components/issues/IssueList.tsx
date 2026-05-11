@@ -6,24 +6,18 @@ const STATUS_ORDER: IssueStatus[] = [
 ]
 
 const STATUS_LABELS: Record<IssueStatus, string> = {
-  backlog: 'Backlog',
-  todo: 'Todo',
-  in_progress: 'In Progress',
-  in_review: 'In Review',
-  done: 'Done',
-  cancelled: 'Cancelled',
+  backlog: 'Backlog', todo: 'Todo', in_progress: 'In Progress',
+  in_review: 'In Review', done: 'Done', cancelled: 'Cancelled',
 }
 
 interface IssueListProps {
   issues: Issue[]
+  onIssueClick?: (issueId: string) => void
 }
 
-export function IssueList({ issues }: IssueListProps) {
+export function IssueList({ issues, onIssueClick }: IssueListProps) {
   const grouped = STATUS_ORDER.reduce<Record<IssueStatus, Issue[]>>(
-    (acc, status) => {
-      acc[status] = issues.filter((i) => i.status === status)
-      return acc
-    },
+    (acc, status) => { acc[status] = issues.filter((i) => i.status === status); return acc },
     {} as Record<IssueStatus, Issue[]>,
   )
 
@@ -40,7 +34,11 @@ export function IssueList({ issues }: IssueListProps) {
             </div>
             <div>
               {group.map((issue) => (
-                <IssueRow key={issue.id} issue={issue} />
+                <IssueRow
+                  key={issue.id}
+                  issue={issue}
+                  onClick={() => onIssueClick?.(issue.id)}
+                />
               ))}
             </div>
           </section>

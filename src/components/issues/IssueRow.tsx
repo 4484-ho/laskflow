@@ -13,27 +13,29 @@ const STATUS_ICONS: Record<IssueStatus, { icon: string; label: string; next: Iss
 }
 
 const PRIORITY_ICONS: Record<string, string> = {
-  urgent: '⚡',
-  high: '▲',
-  medium: '■',
-  low: '▽',
-  none: '',
+  urgent: '⚡', high: '▲', medium: '■', low: '▽', none: '',
 }
 
 interface IssueRowProps {
   issue: Issue
+  onClick?: () => void
 }
 
-export function IssueRow({ issue }: IssueRowProps) {
+export function IssueRow({ issue, onClick }: IssueRowProps) {
   const updateIssueMutation = useUpdateIssue()
   const statusInfo = STATUS_ICONS[issue.status]
 
-  const cycleStatus = () => {
+  const cycleStatus = (e: React.MouseEvent) => {
+    e.stopPropagation()
     updateIssueMutation.mutate({ id: issue.id, data: { status: statusInfo.next } })
   }
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2 hover:bg-neutral-900/50 group rounded-md">
+    <div
+      onClick={onClick}
+      data-testid="issue-row"
+      className="flex items-center gap-3 px-4 py-2 hover:bg-neutral-900/50 group rounded-md cursor-pointer"
+    >
       <button
         onClick={cycleStatus}
         title={`${statusInfo.label} → ${STATUS_ICONS[statusInfo.next].label}`}
@@ -41,18 +43,16 @@ export function IssueRow({ issue }: IssueRowProps) {
       >
         {statusInfo.icon}
       </button>
-
-      <span className="text-xs text-neutral-600 shrink-0 font-mono w-14">
-        {issue.identifier}
-      </span>
-
-      <span className="flex-1 text-sm text-neutral-100 truncate">
-        {issue.title}
-      </span>
-
+      <span className="text-xs text-neutral-600 shrink-0 font-mono w-14">{issue.identifier}</span>
+      <span className="flex-1 text-sm text-neutral-100 truncate">{issue.title}</span>
       {issue.priority !== 'none' && (
         <span className="text-xs text-neutral-500 shrink-0" title={issue.priority}>
           {PRIORITY_ICONS[issue.priority]}
+        </span>
+      )}
+      {issue.children && issue.children.length > 0 && (
+        <span className="text-xs text-neutral-600 shrink-0">
+          {issue.children.filter((c) => c.status === 'done').length}/{issue.children.length}
         </span>
       )}
     </div>

@@ -1,7 +1,5 @@
-import {
-  HydrationBoundary,
-  dehydrate,
-} from '@tanstack/react-query'
+import { Suspense } from 'react'
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query'
 import { listIssues } from '@/server/domain/issues'
 import { getQueryClient } from '@/lib/query-client'
 import { queryKeys } from '@/lib/query-keys'
@@ -15,7 +13,9 @@ export default async function IssuesPage() {
   })
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <IssuesPageClient />
+      <Suspense fallback={<div className="flex-1" />}>
+        <IssuesPageClient />
+      </Suspense>
     </HydrationBoundary>
   )
 }
