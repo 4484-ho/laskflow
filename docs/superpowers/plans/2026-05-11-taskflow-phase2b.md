@@ -731,7 +731,36 @@ export function IssuesPageClient() {
 }
 ```
 
-- [ ] **Step 6: 開発サーバーで動作確認**
+- [ ] **Step 6: `issues/page.tsx` に Suspense ラッパーを追加**
+
+`useSearchParams()` を使う Client Component は Suspense でラップが必要（Next.js のビルド警告回避）:
+
+```typescript
+// src/app/issues/page.tsx 全体を置き換え:
+import { Suspense } from 'react'
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query'
+import { listIssues } from '@/server/domain/issues'
+import { getQueryClient } from '@/lib/query-client'
+import { queryKeys } from '@/lib/query-keys'
+import { IssuesPageClient } from './IssuesPageClient'
+
+export default async function IssuesPage() {
+  const queryClient = getQueryClient()
+  await queryClient.prefetchQuery({
+    queryKey: queryKeys.issues.list({}),
+    queryFn: () => listIssues({}),
+  })
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <Suspense fallback={<div className="flex-1" />}>
+        <IssuesPageClient />
+      </Suspense>
+    </HydrationBoundary>
+  )
+}
+```
+
+- [ ] **Step 7: 開発サーバーで動作確認**
 
 ```bash
 pnpm dev
@@ -739,10 +768,10 @@ pnpm dev
 
 Issue 行をクリックして右側パネルが開くこと、ESC で閉じることを確認。URL に `?selected=<id>` が付くことを確認。
 
-- [ ] **Step 7: コミット**
+- [ ] **Step 8: コミット**
 
 ```bash
-git add src/components/issues/MetaSidebar.tsx src/components/issues/IssueDetailSlideover.tsx src/components/issues/IssueRow.tsx src/components/issues/IssueList.tsx src/app/issues/IssuesPageClient.tsx
+git add src/components/issues/MetaSidebar.tsx src/components/issues/IssueDetailSlideover.tsx src/components/issues/IssueRow.tsx src/components/issues/IssueList.tsx src/app/issues/IssuesPageClient.tsx src/app/issues/page.tsx
 git commit -m "feat: issue detail slideover with meta sidebar"
 ```
 
@@ -1591,12 +1620,23 @@ export const issueListQuerySchema = z.object({
 })
 ```
 
-- [ ] **Step 2: `db/issues.ts` の `getIssues` にソート対応を追加**
+- [ ] **Step 2: `db/issues.ts` の `GetIssuesParams` と `getIssues` を拡張**
 
-`getIssues` の orderBy 部分を修正:
+まず `GetIssuesParams` インターフェースに `sort` と `initiativeId` を追加し、次に `getIssues` の orderBy とフィルタ部分を修正:
 
 ```typescript
-// getIssues 内の orderBy を修正:
+// src/server/db/issues.ts の GetIssuesParams インターフェースを更新:
+interface GetIssuesParams {
+  status?: IssueStatus
+  priority?: IssuePriority
+  projectId?: string
+  cycleId?: string
+  initiativeId?: string  // ADD
+  sort?: 'sortOrder' | 'priority' | 'createdAt' | 'updatedAt'  // ADD
+  includeSubtasks?: boolean
+}
+
+// getIssues 内の orderBy を修正（既存の固定 orderBy を置き換え）:
 const sort = params.sort ?? 'sortOrder'
 const orderBy =
   sort === 'sortOrder'
@@ -1605,7 +1645,7 @@ const orderBy =
     ? [{ priority: 'asc' as const }, { createdAt: 'desc' as const }]
     : [{ [sort]: 'desc' as const }]
 
-// initiativeId フィルタ追加:
+// where 構築の後（if (!params.includeSubtasks) の行の後）に追加:
 if (params.initiativeId) {
   where.project = { initiativeId: params.initiativeId }
 }
@@ -2154,6 +2194,7 @@ export function CycleProgressPanel({ cycle, issues }: CycleProgressPanelProps) {
 
 ```typescript
 // src/app/cycles/[id]/page.tsx
+import { Suspense } from 'react'
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query'
 import { getCycle } from '@/server/domain/cycles'
 import { listIssues } from '@/server/domain/issues'
@@ -2182,7 +2223,9 @@ export default async function CycleDetailPage({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <CycleDetailClient cycle={cycle} />
+      <Suspense fallback={<div className="flex-1" />}>
+        <CycleDetailClient cycle={cycle} />
+      </Suspense>
     </HydrationBoundary>
   )
 }
@@ -2317,6 +2360,7 @@ export function InitiativeDetailClient({ initiative }: InitiativeDetailClientPro
 
 ```typescript
 // src/app/projects/[id]/page.tsx
+import { Suspense } from 'react'
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query'
 import { getProject } from '@/server/domain/projects'
 import { listIssues } from '@/server/domain/issues'
@@ -2345,7 +2389,9 @@ export default async function ProjectDetailPage({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ProjectDetailClient project={project} />
+      <Suspense fallback={<div className="flex-1" />}>
+        <ProjectDetailClient project={project} />
+      </Suspense>
     </HydrationBoundary>
   )
 }
