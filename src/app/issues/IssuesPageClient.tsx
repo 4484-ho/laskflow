@@ -7,7 +7,9 @@ import { useUiStore } from '@/stores/uiStore'
 import { IssueList } from '@/components/issues/IssueList'
 import { IssueDetailSlideover } from '@/components/issues/IssueDetailSlideover'
 import { CreateIssueModal } from '@/components/issues/CreateIssueModal'
+import { FilterBar } from '@/components/issues/FilterBar'
 import { Topbar } from '@/components/layout/Topbar'
+import { useIssueFilters } from '@/hooks/useIssueFilters'
 import { Plus } from 'lucide-react'
 
 export function IssuesPageClient() {
@@ -15,7 +17,8 @@ export function IssuesPageClient() {
   const searchParams = useSearchParams()
   const selectedId = searchParams.get('selected') ?? undefined
 
-  const { data: issues, isLoading, isError } = useIssues()
+  const [filters, setFilters] = useIssueFilters()
+  const { data: issues, isLoading, isError } = useIssues(filters)
   const { openCreateIssueModal } = useUiStore()
 
   const openIssue = useCallback((id: string) => {
@@ -33,6 +36,7 @@ export function IssuesPageClient() {
   return (
     <>
       <Topbar title="Issues" />
+      <FilterBar filters={filters} onChange={setFilters} />
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto py-6">

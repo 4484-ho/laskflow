@@ -9,6 +9,8 @@ interface GetIssuesParams {
   priority?: IssuePriority
   projectId?: string
   cycleId?: string
+  initiativeId?: string
+  sort?: 'sortOrder' | 'priority' | 'createdAt' | 'updatedAt'
   includeSubtasks?: boolean
 }
 
@@ -35,11 +37,19 @@ export async function getIssues(params: GetIssuesParams = {}): Promise<Issue[]> 
   if (params.projectId) where.projectId = params.projectId
   if (params.cycleId) where.cycleId = params.cycleId
   if (!params.includeSubtasks) where.parentId = null  // hide subtasks from list
+  if (params.initiativeId) {
+    where.project = { initiativeId: params.initiativeId }
+  }
 
-  const issues = await prisma.issue.findMany({
-    where,
-    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
-  })
+  const sort = params.sort ?? 'sortOrder'
+  const orderBy =
+    sort === 'sortOrder'
+      ? [{ sortOrder: 'asc' as const }, { createdAt: 'desc' as const }]
+      : sort === 'priority'
+      ? [{ priority: 'asc' as const }, { createdAt: 'desc' as const }]
+      : [{ [sort]: 'desc' as const }]
+
+  const issues = await prisma.issue.findMany({ where, orderBy })
   return issues.map(parseIssue)
 }
 

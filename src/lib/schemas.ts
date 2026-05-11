@@ -22,6 +22,8 @@ export const issueListQuerySchema = z.object({
   priority: issuePrioritySchema.optional(),
   projectId: z.string().min(1).optional(),
   cycleId: z.string().min(1).optional(),
+  initiativeId: z.string().min(1).optional(),
+  sort: z.enum(['sortOrder', 'priority', 'createdAt', 'updatedAt']).optional(),
 })
 
 export const createIssueSchema = z.object({
