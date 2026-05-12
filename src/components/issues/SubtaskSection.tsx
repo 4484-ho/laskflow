@@ -44,9 +44,9 @@ export function SubtaskSection({ parentIssue }: SubtaskSectionProps) {
               onChange={(e) =>
                 updateIssue({ id: sub.id, data: { status: e.target.checked ? 'done' : 'todo' } })
               }
-              className="accent-blue-500 shrink-0"
+              className="accent-teal-600 shrink-0"
             />
-            <span className={`text-sm ${sub.status === 'done' ? 'line-through text-neutral-500' : 'text-neutral-200'}`}>
+            <span className={`text-sm ${sub.status === 'done' ? 'line-through text-neutral-500' : 'text-neutral-900'}`}>
               {sub.title}
             </span>
           </div>
@@ -64,12 +64,12 @@ export function SubtaskSection({ parentIssue }: SubtaskSectionProps) {
             if (e.key === 'Escape') setCreating(false)
           }}
           onBlur={handleCreate}
-          className="mt-2 w-full bg-neutral-800 text-neutral-200 text-sm rounded px-2 py-1 outline-none border border-neutral-600"
+          className="mt-2 w-full bg-white text-neutral-900 text-sm rounded px-2 py-1 outline-none border border-neutral-300"
         />
       ) : (
         <button
           onClick={() => setCreating(true)}
-          className="mt-2 flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-300"
+          className="mt-2 flex items-center gap-1 text-xs text-neutral-500 hover:text-teal-700"
         >
           <Plus size={12} /> Add subtask
         </button>

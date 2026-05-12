@@ -51,13 +51,13 @@ export function IssueRow({ issue, onClick }: IssueRowProps) {
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.() } }}
       tabIndex={0}
       data-testid="issue-row"
-      className="flex items-center gap-3 px-4 py-2 hover:bg-neutral-900/50 group rounded-md cursor-pointer"
+      className="flex items-center gap-3 px-4 py-2 hover:bg-neutral-100 group rounded-md cursor-pointer"
     >
       <button
         {...attributes}
         {...listeners}
         onClick={(e) => e.stopPropagation()}
-        className="text-neutral-700 hover:text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 cursor-grab active:cursor-grabbing"
+        className="text-neutral-400 hover:text-neutral-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 cursor-grab active:cursor-grabbing"
         aria-label="Drag to reorder"
       >
         <GripVertical size={14} />
@@ -66,12 +66,12 @@ export function IssueRow({ issue, onClick }: IssueRowProps) {
       <button
         onClick={cycleStatus}
         title={`${statusInfo.label} → ${STATUS_ICONS[statusInfo.next].label}`}
-        className="text-neutral-500 hover:text-neutral-200 transition-colors shrink-0 font-mono text-sm w-4"
+        className="text-neutral-500 hover:text-teal-700 transition-colors shrink-0 font-mono text-sm w-4"
       >
         {statusInfo.icon}
       </button>
       <span className="text-xs text-neutral-600 shrink-0 font-mono w-14">{issue.identifier}</span>
-      <span className="flex-1 text-sm text-neutral-100 truncate">{issue.title}</span>
+      <span className="flex-1 text-sm text-neutral-900 truncate">{issue.title}</span>
       {issue.priority !== 'none' && (
         <span className="text-xs text-neutral-500 shrink-0" title={issue.priority}>
           {PRIORITY_ICONS[issue.priority]}

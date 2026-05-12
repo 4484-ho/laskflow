@@ -35,19 +35,19 @@ export function ProjectList({ projects, onCreated }: ProjectListProps) {
           placeholder="Project name"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="flex-1 bg-neutral-800 border border-neutral-700 rounded-md px-3 py-1.5 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none"
+          className="flex-1 bg-white border border-neutral-300 rounded-md px-3 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-500 focus:outline-none focus:border-teal-500"
         />
         <input
           placeholder="Prefix (e.g. FE)"
           value={prefix}
           onChange={(e) => setPrefix(e.target.value.toUpperCase())}
           maxLength={5}
-          className="w-28 bg-neutral-800 border border-neutral-700 rounded-md px-3 py-1.5 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none font-mono"
+          className="w-28 bg-white border border-neutral-300 rounded-md px-3 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-500 focus:outline-none focus:border-teal-500 font-mono"
         />
         <button
           type="submit"
           disabled={!title.trim() || !prefix.trim() || creating}
-          className="px-4 py-1.5 rounded-md bg-neutral-700 hover:bg-neutral-600 text-sm text-neutral-100 disabled:opacity-40 transition-colors"
+          className="px-4 py-1.5 rounded-md bg-teal-600 hover:bg-teal-700 text-sm text-white disabled:opacity-40 transition-colors"
         >
           Add
         </button>
@@ -55,11 +55,11 @@ export function ProjectList({ projects, onCreated }: ProjectListProps) {
 
       <div className="flex flex-col gap-2">
         {projects.map((p) => (
-          <div key={p.id} className="flex items-center gap-3 px-4 py-3 rounded-lg bg-neutral-900 border border-neutral-800">
+          <div key={p.id} className="flex items-center gap-3 px-4 py-3 rounded-lg bg-white border border-neutral-200">
             <span className="font-mono text-xs text-neutral-500 w-12">{p.prefix}</span>
-            <span className="text-sm text-neutral-100">{p.title}</span>
+            <span className="text-sm text-neutral-900">{p.title}</span>
             <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${
-              p.status === 'active' ? 'bg-green-900/40 text-green-400' : 'bg-neutral-800 text-neutral-500'
+              p.status === 'active' ? 'bg-teal-100 text-teal-800' : 'bg-neutral-100 text-neutral-600'
             }`}>{p.status}</span>
           </div>
         ))}

@@ -16,7 +16,7 @@ export function InitiativesPageClient() {
       <Topbar title="Initiatives" />
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto py-6 px-4">
-          <h1 className="text-sm font-medium text-neutral-200 mb-4">Initiatives</h1>
+          <h1 className="text-sm font-medium text-neutral-900 mb-4">Initiatives</h1>
           {isLoading ? (
             <p className="text-sm text-neutral-500">Loading...</p>
           ) : isError ? (

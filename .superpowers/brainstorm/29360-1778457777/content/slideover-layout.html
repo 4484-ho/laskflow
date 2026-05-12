@@ -1,0 +1,239 @@
+<h2>Issue 詳細スライドオーバー — レイアウト選択</h2>
+<p class="subtitle">右から現れるパネルの内部レイアウトを選んでください</p>
+
+<style>
+  .mock-app {
+    display: flex;
+    height: 320px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 11px;
+    background: #f8fafc;
+    margin-bottom: 8px;
+  }
+  .mock-list-area {
+    flex: 1;
+    background: #f8fafc;
+    padding: 10px;
+    border-right: 1px solid #e2e8f0;
+    opacity: 0.4;
+  }
+  .mock-list-row {
+    height: 28px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .mock-panel {
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #e2e8f0;
+    box-shadow: -4px 0 16px rgba(0,0,0,0.08);
+  }
+  .mock-panel-header {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff;
+  }
+  .mock-panel-title {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 12px;
+    flex: 1;
+  }
+  .mock-close-btn {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 10px;
+  }
+  .mock-panel-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+  .mock-editor {
+    flex: 1;
+    padding: 10px;
+    background: #fff;
+  }
+  .mock-editor-line {
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    margin-bottom: 5px;
+  }
+  .mock-editor-line.short { width: 60%; }
+  .mock-editor-line.medium { width: 80%; }
+  .mock-editor-label {
+    font-size: 9px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+    margin-top: 8px;
+  }
+  .mock-meta-sidebar {
+    padding: 10px;
+    border-left: 1px solid #f1f5f9;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .mock-meta-field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .mock-meta-label {
+    font-size: 9px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .mock-meta-value {
+    height: 18px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    width: 80px;
+  }
+  .mock-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 9px;
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+  .mock-subtask-row {
+    height: 16px;
+    background: #f1f5f9;
+    border-radius: 2px;
+    margin-bottom: 3px;
+  }
+  .mock-subtask-header {
+    font-size: 9px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 5px;
+  }
+  .layout-label {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 4px;
+    padding: 0 4px;
+  }
+</style>
+
+<div class="cards">
+
+  <!-- Option A: Right meta sidebar -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 12px; background: #f8fafc;">
+      <div class="mock-app">
+        <div class="mock-list-area">
+          <div class="mock-list-row"></div>
+          <div class="mock-list-row"></div>
+          <div class="mock-list-row"></div>
+        </div>
+        <div class="mock-panel" style="width: 270px;">
+          <div class="mock-panel-header">
+            <div class="mock-panel-title">Fix authentication bug</div>
+            <div class="mock-close-btn">✕</div>
+          </div>
+          <div class="mock-panel-body">
+            <div class="mock-editor" style="flex: 2;">
+              <div class="mock-editor-label">Description</div>
+              <div class="mock-editor-line medium"></div>
+              <div class="mock-editor-line short"></div>
+              <div class="mock-editor-line medium"></div>
+              <div class="mock-editor-line short"></div>
+              <div class="mock-editor-label">Subtasks</div>
+              <div class="mock-subtask-row"></div>
+              <div class="mock-subtask-row"></div>
+            </div>
+            <div class="mock-meta-sidebar" style="width: 90px;">
+              <div class="mock-meta-field">
+                <div class="mock-meta-label">Status</div>
+                <div class="mock-badge">In Progress</div>
+              </div>
+              <div class="mock-meta-field">
+                <div class="mock-meta-label">Project</div>
+                <div class="mock-meta-value"></div>
+              </div>
+              <div class="mock-meta-field">
+                <div class="mock-meta-label">Cycle</div>
+                <div class="mock-meta-value"></div>
+              </div>
+              <div class="mock-meta-field">
+                <div class="mock-meta-label">Due</div>
+                <div class="mock-meta-value"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="layout-label">幅広パネル — エディタ左、メタ情報は右サイドバー</div>
+    </div>
+    <div class="card-body">
+      <h3>A: 右サイドバー型</h3>
+      <p>Linear に近い構成。エディタとメタ情報を常に並べて表示。パネル幅は画面の40〜50%。</p>
+    </div>
+  </div>
+
+  <!-- Option B: Stacked meta bar on top -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 12px; background: #f8fafc;">
+      <div class="mock-app">
+        <div class="mock-list-area">
+          <div class="mock-list-row"></div>
+          <div class="mock-list-row"></div>
+          <div class="mock-list-row"></div>
+        </div>
+        <div class="mock-panel" style="width: 220px;">
+          <div class="mock-panel-header">
+            <div class="mock-panel-title">Fix authentication bug</div>
+            <div class="mock-close-btn">✕</div>
+          </div>
+          <!-- Meta row -->
+          <div style="display:flex; gap:5px; padding: 7px 10px; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; background:#f8fafc; align-items:center;">
+            <div class="mock-badge">In Progress</div>
+            <div style="height:14px;width:45px;background:#e2e8f0;border-radius:3px;"></div>
+            <div style="height:14px;width:38px;background:#e2e8f0;border-radius:3px;"></div>
+          </div>
+          <div class="mock-panel-body" style="flex-direction: column;">
+            <div class="mock-editor" style="flex:1; overflow:hidden;">
+              <div class="mock-editor-label">Description</div>
+              <div class="mock-editor-line medium"></div>
+              <div class="mock-editor-line short"></div>
+              <div class="mock-editor-line medium"></div>
+            </div>
+            <div style="padding: 8px 10px; border-top: 1px solid #f1f5f9; background:#fff;">
+              <div class="mock-subtask-header">Subtasks (2)</div>
+              <div class="mock-subtask-row"></div>
+              <div class="mock-subtask-row"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="layout-label">スリムパネル — メタ情報は上部バー、エディタが主役</div>
+    </div>
+    <div class="card-body">
+      <h3>B: 上部バー型</h3>
+      <p>パネル幅を抑えつつメタ情報は一行に収める。エディタ領域を縦方向に最大化。幅は画面の30〜35%。</p>
+    </div>
+  </div>
+
+</div>

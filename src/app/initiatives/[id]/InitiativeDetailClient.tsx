@@ -13,9 +13,9 @@ export function InitiativeDetailClient({ initiative }: InitiativeDetailClientPro
       <Topbar title={initiative.title} />
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto py-6 px-4">
-          <h1 className="text-lg font-semibold text-neutral-100 mb-2">{initiative.title}</h1>
+          <h1 className="text-lg font-semibold text-neutral-900 mb-2">{initiative.title}</h1>
           {initiative.description && (
-            <p className="text-sm text-neutral-400 mb-6">{initiative.description}</p>
+            <p className="text-sm text-neutral-600 mb-6">{initiative.description}</p>
           )}
           <div className="flex gap-4 text-xs text-neutral-500">
             <span>Status: {initiative.status}</span>

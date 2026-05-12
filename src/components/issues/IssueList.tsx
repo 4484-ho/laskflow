@@ -65,9 +65,9 @@ function StatusGroup({
 
   return (
     <section>
-      <div className="flex items-center gap-2 px-4 py-1 text-xs text-neutral-500 font-medium">
+      <div className="flex items-center gap-2 px-4 py-1 text-xs text-neutral-600 font-medium">
         <span>{STATUS_LABELS[status]}</span>
-        <span className="text-neutral-700">{issues.length}</span>
+        <span className="text-neutral-500">{issues.length}</span>
       </div>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={issues.map((i) => i.id)} strategy={verticalListSortingStrategy}>

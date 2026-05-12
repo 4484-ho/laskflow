@@ -19,7 +19,7 @@ export function FilterBar({ filters, onChange }: FilterBarProps) {
   const { data: initiatives = [] } = useInitiatives()
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 border-b border-neutral-800 flex-wrap">
+    <div className="flex items-center gap-2 px-4 py-2 border-b border-neutral-200 flex-wrap bg-white">
       <Select
         value={filters.status ?? ''}
         onChange={(v) => onChange({ status: (v as IssueStatus) || undefined })}
@@ -70,7 +70,7 @@ export function FilterBar({ filters, onChange }: FilterBarProps) {
       {Object.values(filters).some(Boolean) && (
         <button
           onClick={() => onChange({ status: undefined, projectId: undefined, cycleId: undefined, initiativeId: undefined, sort: undefined })}
-          className="text-xs text-neutral-500 hover:text-neutral-300"
+          className="text-xs text-neutral-500 hover:text-neutral-900"
         >
           Clear
         </button>
@@ -92,7 +92,7 @@ function Select({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       aria-label={label}
-      className="bg-neutral-800 text-neutral-300 text-xs rounded px-2 py-1 border border-neutral-700"
+      className="bg-white text-neutral-900 text-xs rounded px-2 py-1 border border-neutral-300"
     >
       {children}
     </select>

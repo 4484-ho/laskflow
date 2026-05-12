@@ -2,9 +2,22 @@
 
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
   }
   body {
-    @apply bg-neutral-950 text-neutral-100;
+    @apply bg-white text-neutral-900;
   }
+}
+
+/* MDXEditor: keep root/toolbar on light surfaces (no html.dark) */
+.mdxeditor {
+  --basePageBg: #ffffff;
+  --accentSolid: #0d9488;
+  --accentSolidHover: #0f766e;
+  color: #171717;
+  background: var(--basePageBg);
+}
+
+.mdxeditor .mdxeditor-toolbar {
+  border-color: #e5e5e5;
 }

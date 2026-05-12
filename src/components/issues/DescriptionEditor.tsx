@@ -20,7 +20,8 @@ const MDXEditor = dynamic(
           markdown={markdown}
           onChange={onChange}
           plugins={[headingsPlugin(), listsPlugin(), quotePlugin(), markdownShortcutPlugin()]}
-          contentEditableClassName="prose prose-invert prose-sm max-w-none min-h-[200px] focus:outline-none"
+          className="mdxeditor"
+          contentEditableClassName="max-w-none min-h-[200px] focus:outline-none text-sm text-neutral-900 [&_a]:text-teal-700 [&_a:hover]:text-teal-800"
         />
       )
     }
@@ -38,7 +39,7 @@ export function DescriptionEditor({ initialValue, onSave }: DescriptionEditorPro
 
   return (
     <div
-      className="min-h-[200px] rounded border border-transparent hover:border-neutral-700 focus-within:border-neutral-600 transition-colors"
+      className="min-h-[200px] rounded border border-transparent hover:border-neutral-300 focus-within:border-teal-500 transition-colors"
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget)) {
           onSave(currentMarkdown.current)

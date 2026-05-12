@@ -5,7 +5,7 @@ A minimal, local-first task manager for solo developers. Inspired by Linear, pow
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router, RSC + HydrationBoundary)
-- **UI:** React 19, Tailwind CSS (dark theme)
+- **UI:** React 19, Tailwind CSS (light theme, teal accent)
 - **Database:** Prisma 7 + SQLite
 - **State:** TanStack Query v5 (server state), Zustand (UI state)
 - **Testing:** Vitest (unit), Playwright (E2E)

@@ -21,12 +21,12 @@ export function MetaSidebar({ issue }: MetaSidebarProps) {
     updateIssue({ id: issue.id, data })
 
   return (
-    <div className="w-48 shrink-0 border-l border-neutral-800 p-4 flex flex-col gap-4 bg-neutral-950">
+    <div className="w-48 shrink-0 border-l border-neutral-200 p-4 flex flex-col gap-4 bg-neutral-50">
       <Field label="Status">
         <select
           value={issue.status}
           onChange={(e) => update({ status: e.target.value as IssueStatus })}
-          className="w-full bg-neutral-800 text-neutral-200 text-xs rounded px-2 py-1 border border-neutral-700"
+          className="w-full bg-white text-neutral-900 text-xs rounded px-2 py-1 border border-neutral-300"
         >
           {STATUS_OPTIONS.map((s) => (
             <option key={s} value={s}>{s}</option>
@@ -38,7 +38,7 @@ export function MetaSidebar({ issue }: MetaSidebarProps) {
         <select
           value={issue.priority}
           onChange={(e) => update({ priority: e.target.value as IssuePriority })}
-          className="w-full bg-neutral-800 text-neutral-200 text-xs rounded px-2 py-1 border border-neutral-700"
+          className="w-full bg-white text-neutral-900 text-xs rounded px-2 py-1 border border-neutral-300"
         >
           {PRIORITY_OPTIONS.map((p) => (
             <option key={p} value={p}>{p}</option>
@@ -50,7 +50,7 @@ export function MetaSidebar({ issue }: MetaSidebarProps) {
         <select
           value={issue.projectId ?? ''}
           onChange={(e) => update({ projectId: e.target.value || null })}
-          className="w-full bg-neutral-800 text-neutral-200 text-xs rounded px-2 py-1 border border-neutral-700"
+          className="w-full bg-white text-neutral-900 text-xs rounded px-2 py-1 border border-neutral-300"
         >
           <option value="">No project</option>
           {projects.map((p) => (
@@ -63,7 +63,7 @@ export function MetaSidebar({ issue }: MetaSidebarProps) {
         <select
           value={issue.cycleId ?? ''}
           onChange={(e) => update({ cycleId: e.target.value || null })}
-          className="w-full bg-neutral-800 text-neutral-200 text-xs rounded px-2 py-1 border border-neutral-700"
+          className="w-full bg-white text-neutral-900 text-xs rounded px-2 py-1 border border-neutral-300"
         >
           <option value="">No cycle</option>
           {cycles.map((c) => (
@@ -74,7 +74,7 @@ export function MetaSidebar({ issue }: MetaSidebarProps) {
 
       {issue.dueDate && (
         <Field label="Due">
-          <span className="text-xs text-neutral-400">
+          <span className="text-xs text-neutral-600">
             {new Date(issue.dueDate).toLocaleDateString()}
           </span>
         </Field>
