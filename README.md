@@ -78,12 +78,137 @@ A minimal, local-first task manager for solo developers. Inspired by Linear, pow
 | DELETE | `/api/cycles/[id]` | Cycle 削除 |
 | GET | `/api/search?q=` | 横断検索（issues, projects, initiatives, cycles） |
 
-### Architecture
+### Architecture（要約）
 
-- **Server layer:** `src/server/db/` (Prisma CRUD) + `src/server/domain/` (business logic + Zod validation)
-- **Client boundary:** ESLint `no-restricted-imports` で `src/components/**`, `src/hooks/**`, `src/stores/**` から `@/server/**` への import を禁止
-- **Data fetching:** RSC で `prefetchQuery` → `HydrationBoundary` → Client Component で `useQuery`
-- **Sort order:** fractional-indexing (string) で D&D 並び替えを永続化。`POST /api/issues/[id]/move` で `keyBetween` 計算
+- **サーバー層:** `src/server/db/`（Prisma）+ `src/server/domain/`（Zod と業務ロジック）
+- **クライアント境界:** ESLint でクライアント向けディレクトリから `@/server/**` の import を禁止
+- **データ取得:** RSC で `prefetchQuery` → `HydrationBoundary` → クライアントで `useQuery`
+- ディレクトリの対応関係やデータの流れは下記 [リポジトリ構成とアーキテクチャ](#リポジトリ構成とアーキテクチャ) を参照
+
+## リポジトリ構成とアーキテクチャ
+
+この節では、リポジトリ直下から `src/` までの役割と、Next.js App Router 上でのレイヤ分離・データの流れをまとめる。
+
+### リポジトリ直下
+
+| パス | 役割 |
+|------|------|
+| `src/` | アプリケーション本体（App Router、API、UI、サーバー層） |
+| `prisma/` | `schema.prisma` とマイグレーション |
+| `prisma.config.ts` | Prisma 7 の設定（データソース等） |
+| `e2e/` | Playwright の設定・シード・スペック |
+| `scripts/` | 運用スクリプト（例: `migrate-sort-order.ts`） |
+| `docs/` | ADR、シナリオ、設計メモ |
+| `data/` | SQLite ファイルの置き場（`.gitkeep`、ローカル DB） |
+| `public/` | 静的アセット |
+
+### `src/` のディレクトリ
+
+```text
+src/
+├── app/                    # App Router: ページ・レイアウト・Route Handlers
+│   ├── api/                # REST 風 API（issues / projects / initiatives / cycles / search）
+│   ├── issues|projects|initiatives|cycles/
+│   │   ├── page.tsx        # RSC: prefetch + HydrationBoundary
+│   │   └── *PageClient.tsx # クライアントページ
+│   └── layout.tsx          # QueryProvider, Sidebar, CommandPalette
+├── components/             # UI（layout / issues / …）。サーバー層に依存しない
+├── hooks/                  # TanStack Query などのデータフック
+├── lib/                    # query-client, query-keys, schemas, fractional-index 等
+├── server/
+│   ├── db/                 # Prisma を叩く CRUD・クエリ
+│   └── domain/             # Zod 検証とドメインロジック（API / RSC から利用）
+├── stores/                 # Zustand 等の UI 状態
+└── types/                  # 共有型
+```
+
+レイヤの依存方向のイメージは次のとおり（下位は上位に依存しない）。
+
+```mermaid
+flowchart TB
+  subgraph client["クライアント境界"]
+    APP["app/*PageClient.tsx"]
+    COMP["components/"]
+    HOOKS["hooks/"]
+    STORES["stores/"]
+  end
+  subgraph rsc["サーバー（RSC）"]
+    PAGES["app/**/page.tsx"]
+  end
+  subgraph api["Route Handlers"]
+    ROUTES["app/api/**/route.ts"]
+  end
+  subgraph server["サーバー層（import 可）"]
+    DOM["server/domain/"]
+    DB["server/db/"]
+  end
+  PAGES --> DOM
+  PAGES --> DB
+  ROUTES --> DOM
+  ROUTES --> DB
+  APP --> HOOKS
+  APP --> COMP
+  HOOKS --> ROUTES
+  COMP --> STORES
+```
+
+### ドメインモデル（データ）
+
+Prisma スキーマに対応するエンティティ関係。
+
+```mermaid
+erDiagram
+  Initiative ||--o{ Project : projects
+  Project ||--o{ Issue : issues
+  Cycle ||--o{ Issue : issues
+  Issue ||--o{ Issue : subtasks
+```
+
+- **Initiative → Project → Issue** の階層と、Issue の任意の **Cycle** 割り当て、**親子 Issue**（サブタスク）を表す。
+
+### リクエストとデータ取得の流れ
+
+一覧ページは RSC でサーバー上の `listIssues` 等を `prefetchQuery` し、脱水状態を `HydrationBoundary` で渡す。クライアントでは同じ `queryKey` で `useQuery` し、以降の更新は `/api/*` 経由で `server/domain` → `server/db` と流れる。
+
+```mermaid
+sequenceDiagram
+  participant Browser
+  participant RSC as RSC_page
+  participant Domain as server_domain
+  participant Prisma as server_db
+  participant HB as HydrationBoundary
+  participant Client as PageClient
+  participant API as RouteHandler
+
+  Browser->>RSC: 初回ナビゲーション
+  RSC->>Domain: prefetchQuery
+  Domain->>Prisma: 読み取り
+  Prisma-->>Domain: rows
+  Domain-->>RSC: データ
+  RSC->>HB: dehydrate state
+  RSC-->>Browser: HTML + ペイロード
+  Browser->>Client: ハイドレーション
+  Client->>Client: キャッシュヒット
+  Note over Client,API: ミューテーション・再取得
+  Client->>API: fetch PATCH/POST 等
+  API->>Domain: 検証・業務ルール
+  Domain->>Prisma: 書き込み
+  Prisma-->>Domain: 結果
+  Domain-->>API: レスポンス
+  API-->>Client: JSON
+```
+
+### API とサーバー層
+
+- **Route Handlers**（`src/app/api/**/route.ts`）は HTTP の入り口。入力のパース・Zod 検証・ステータスコードはここまたは `server/domain` に寄せる。
+- **`server/db/*`** は Prisma に閉じた読み書き。複雑な条件やトランザクションはここに集約しやすい。
+- **`server/domain/*`** はアプリの「用語」に沿った操作（一覧フィルタ、並び替えキー計算、identifier 採番など）。RSC の prefetch も API も、原則として domain 経由で DB に触る。
+
+クライアント専用コード（`components/**`, `hooks/**`, `stores/**`）から `server/**` を直接 import しないよう ESLint で縛り、バンドル漏洩と責務の混線を防ぐ。
+
+### Issue の並び順
+
+同一ステータス内の D&D 並び替えは **fractional indexing**（`sortOrder` 文字列）で表現し、`POST /api/issues/[id]/move` で前後キーから新しい `sortOrder` を計算して永続化する（詳細は `src/lib/fractional-index.ts` と ADR `docs/adr/0006-fractional-indexing-for-sort-order.md`）。
 
 ## Setup
 
