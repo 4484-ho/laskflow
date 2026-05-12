@@ -1,9 +1,4 @@
 import { test, expect } from '@playwright/test'
-import { seed } from './seed'
-
-test.beforeAll(async () => {
-  await seed()
-})
 
 test('Issue 作成 → 一覧表示 → スライドオーバーで description 編集 → リロード後も残る', async ({ page }) => {
   await page.goto('/issues')
@@ -15,7 +10,9 @@ test('Issue 作成 → 一覧表示 → スライドオーバーで description 
   await expect(page.getByText('Playwright Test Issue')).toBeVisible()
 
   await page.getByText('Playwright Test Issue').click()
-  await expect(page.getByText(/description/i)).toBeVisible()
+  const detail = page.getByRole('complementary', { name: 'Issue detail' })
+  await expect(detail).toBeVisible()
+  await expect(detail.getByText('Description', { exact: true })).toBeVisible({ timeout: 20_000 })
 
   await expect(page).toHaveURL(/selected=/)
 

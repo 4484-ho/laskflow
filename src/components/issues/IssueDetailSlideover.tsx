@@ -76,7 +76,11 @@ export function IssueDetailSlideover({ issueId, onClose }: IssueDetailSlideoverP
 
   if (isLoading || !issue) {
     return (
-      <aside className="fixed right-0 top-0 bottom-0 z-50 w-[600px] flex flex-col border-l border-neutral-200 bg-white shadow-2xl">
+      <aside
+        aria-label="Issue detail"
+        aria-busy="true"
+        className="fixed right-0 top-0 bottom-0 z-50 w-[600px] flex flex-col border-l border-neutral-200 bg-white shadow-2xl"
+      >
         <div className="p-4 text-sm text-neutral-500">Loading...</div>
       </aside>
     )

@@ -57,6 +57,7 @@ export function CommandPalette() {
       open={commandPaletteOpen}
       onOpenChange={(open) => { if (!open) closeCommandPalette() }}
       label="Command palette"
+      shouldFilter={false}
       className="fixed inset-0 z-[100] flex items-start justify-center pt-[20vh]"
     >
       <div className="w-[560px] rounded-lg border border-neutral-200 bg-white shadow-2xl overflow-hidden">

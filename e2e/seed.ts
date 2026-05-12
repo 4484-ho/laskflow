@@ -1,7 +1,17 @@
+import path from 'node:path'
 import { PrismaClient } from '@prisma/client'
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
 import { generateNKeysBetween } from 'fractional-indexing'
 
-const prisma = new PrismaClient()
+const adapter = new PrismaBetterSqlite3({
+  url: `file:${path.join(process.cwd(), 'data', 'taskflow.db')}`,
+})
+
+/** E2E 用（globalSetup / テストから DB 参照時に共有） */
+export const prisma = new PrismaClient({
+  adapter,
+  log: ['error'],
+})
 
 export async function seed() {
   await prisma.issue.deleteMany()
@@ -90,5 +100,3 @@ export async function seed() {
 
   return { project, cycle, initiative }
 }
-
-seed().then(() => { console.log('Seeded'); return prisma.$disconnect() }).catch(console.error)

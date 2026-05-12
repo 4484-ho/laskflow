@@ -94,6 +94,40 @@ pnpm migrate:sort-order   # 既存 Issue の sortOrder を採番
 pnpm dev
 ```
 
+## Testing
+
+Complete [Setup](#setup) first so `data/taskflow.db` exists and migrations are applied.
+
+### Unit tests (Vitest)
+
+```bash
+pnpm test
+```
+
+Watch mode: `pnpm test:watch`
+
+### E2E tests (Playwright)
+
+Install browser binaries once:
+
+```bash
+pnpm exec playwright install
+```
+
+E2E runs `e2e/global-setup.ts` to seed the database, then starts the app via `webServer` in `e2e/playwright.config.ts` and runs `e2e/*.spec.ts`.
+
+```bash
+pnpm test:e2e
+```
+
+When not in CI, Playwright reuses an existing dev server on port 3000 if one is already running.
+
+Debug with UI mode:
+
+```bash
+pnpm exec playwright test --config=e2e/playwright.config.ts --ui
+```
+
 ## Scripts
 
 | Command | Description |
