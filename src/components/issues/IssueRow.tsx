@@ -1,5 +1,8 @@
 'use client'
 
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { GripVertical } from 'lucide-react'
 import { useUpdateIssue } from '@/hooks/useIssues'
 import type { Issue, IssueStatus } from '@/types'
 
@@ -13,46 +16,70 @@ const STATUS_ICONS: Record<IssueStatus, { icon: string; label: string; next: Iss
 }
 
 const PRIORITY_ICONS: Record<string, string> = {
-  urgent: '⚡',
-  high: '▲',
-  medium: '■',
-  low: '▽',
-  none: '',
+  urgent: '⚡', high: '▲', medium: '■', low: '▽', none: '',
 }
 
 interface IssueRowProps {
   issue: Issue
+  onClick?: () => void
 }
 
-export function IssueRow({ issue }: IssueRowProps) {
+export function IssueRow({ issue, onClick }: IssueRowProps) {
   const updateIssueMutation = useUpdateIssue()
   const statusInfo = STATUS_ICONS[issue.status]
 
-  const cycleStatus = () => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: issue.id,
+  })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  }
+
+  const cycleStatus = (e: React.MouseEvent) => {
+    e.stopPropagation()
     updateIssueMutation.mutate({ id: issue.id, data: { status: statusInfo.next } })
   }
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2 hover:bg-neutral-900/50 group rounded-md">
+    <div
+      ref={setNodeRef}
+      style={style}
+      onClick={onClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.() } }}
+      tabIndex={0}
+      data-testid="issue-row"
+      className="flex items-center gap-3 px-4 py-2 hover:bg-neutral-100 group rounded-md cursor-pointer"
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        onClick={(e) => e.stopPropagation()}
+        className="text-neutral-400 hover:text-neutral-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 cursor-grab active:cursor-grabbing"
+        aria-label="Drag to reorder"
+      >
+        <GripVertical size={14} />
+      </button>
+
       <button
         onClick={cycleStatus}
         title={`${statusInfo.label} → ${STATUS_ICONS[statusInfo.next].label}`}
-        className="text-neutral-500 hover:text-neutral-200 transition-colors shrink-0 font-mono text-sm w-4"
+        className="text-neutral-500 hover:text-teal-700 transition-colors shrink-0 font-mono text-sm w-4"
       >
         {statusInfo.icon}
       </button>
-
-      <span className="text-xs text-neutral-600 shrink-0 font-mono w-14">
-        {issue.identifier}
-      </span>
-
-      <span className="flex-1 text-sm text-neutral-100 truncate">
-        {issue.title}
-      </span>
-
+      <span className="text-xs text-neutral-600 shrink-0 font-mono w-14">{issue.identifier}</span>
+      <span className="flex-1 text-sm text-neutral-900 truncate">{issue.title}</span>
       {issue.priority !== 'none' && (
         <span className="text-xs text-neutral-500 shrink-0" title={issue.priority}>
           {PRIORITY_ICONS[issue.priority]}
+        </span>
+      )}
+      {issue.children && issue.children.length > 0 && (
+        <span className="text-xs text-neutral-600 shrink-0">
+          {issue.children.filter((c) => c.status === 'done').length}/{issue.children.length}
         </span>
       )}
     </div>

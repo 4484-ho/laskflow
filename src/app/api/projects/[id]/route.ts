@@ -1,7 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { updateProject, deleteProject } from '@/server/domain/projects'
+import { getProject, updateProject, deleteProject } from '@/server/domain/projects'
 import { updateProjectSchema } from '@/lib/schemas'
 import { parseOrError } from '@/lib/api-helpers'
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params
+  try {
+    const project = await getProject(id)
+    if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    return NextResponse.json(project)
+  } catch (e) {
+    console.error(`GET /api/projects/${id} failed`, e)
+    return NextResponse.json({ error: 'Failed to fetch project' }, { status: 500 })
+  }
+}
 
 export async function PATCH(
   request: NextRequest,

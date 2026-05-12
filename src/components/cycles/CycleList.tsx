@@ -30,22 +30,22 @@ export function CycleList({ cycles, onCreated }: CycleListProps) {
     <div className="flex flex-col gap-4">
       <form onSubmit={handleCreate} className="flex flex-wrap gap-2">
         <input placeholder="Sprint name" value={title} onChange={(e) => setTitle(e.target.value)}
-          className="flex-1 min-w-40 bg-neutral-800 border border-neutral-700 rounded-md px-3 py-1.5 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none" />
+          className="flex-1 min-w-40 bg-white border border-neutral-300 rounded-md px-3 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-500 focus:outline-none focus:border-teal-500" />
         <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
-          className="bg-neutral-800 border border-neutral-700 rounded-md px-3 py-1.5 text-sm text-neutral-100 focus:outline-none" />
+          className="bg-white border border-neutral-300 rounded-md px-3 py-1.5 text-sm text-neutral-900 focus:outline-none focus:border-teal-500" />
         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
-          className="bg-neutral-800 border border-neutral-700 rounded-md px-3 py-1.5 text-sm text-neutral-100 focus:outline-none" />
+          className="bg-white border border-neutral-300 rounded-md px-3 py-1.5 text-sm text-neutral-900 focus:outline-none focus:border-teal-500" />
         <button type="submit" disabled={!title.trim() || !startDate || !endDate}
-          className="px-4 py-1.5 rounded-md bg-neutral-700 hover:bg-neutral-600 text-sm disabled:opacity-40 transition-colors text-neutral-100">
+          className="px-4 py-1.5 rounded-md bg-teal-600 hover:bg-teal-700 text-sm disabled:opacity-40 transition-colors text-white">
           Add
         </button>
       </form>
       <div className="flex flex-col gap-2">
         {cycles.map((c) => (
-          <div key={c.id} className="flex items-center gap-3 px-4 py-3 rounded-lg bg-neutral-900 border border-neutral-800">
-            <span className="text-sm text-neutral-100 flex-1">{c.title}</span>
+          <div key={c.id} className="flex items-center gap-3 px-4 py-3 rounded-lg bg-white border border-neutral-200">
+            <span className="text-sm text-neutral-900 flex-1">{c.title}</span>
             <span className="text-xs text-neutral-500">{fmt(c.startDate)} – {fmt(c.endDate)}</span>
-            <span className={`text-xs px-2 py-0.5 rounded-full ${c.status === 'active' ? 'bg-green-900/40 text-green-400' : 'bg-neutral-800 text-neutral-500'}`}>{c.status}</span>
+            <span className={`text-xs px-2 py-0.5 rounded-full ${c.status === 'active' ? 'bg-teal-100 text-teal-800' : 'bg-neutral-100 text-neutral-600'}`}>{c.status}</span>
           </div>
         ))}
         {cycles.length === 0 && <p className="text-sm text-neutral-500">No cycles yet.</p>}

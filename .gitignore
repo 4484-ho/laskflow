@@ -50,3 +50,6 @@ data/
 playwright-report/
 test-results/
 .claude/
+
+# Superpowers runtime artifacts
+.superpowers/brainstorm/*/state/

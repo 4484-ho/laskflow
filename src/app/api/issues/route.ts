@@ -10,6 +10,8 @@ export async function GET(request: NextRequest) {
     priority: searchParams.get('priority') ?? undefined,
     projectId: searchParams.get('projectId') ?? undefined,
     cycleId: searchParams.get('cycleId') ?? undefined,
+    initiativeId: searchParams.get('initiativeId') ?? undefined,
+    sort: searchParams.get('sort') ?? undefined,
   })
   if (!parsed.ok) return parsed.response
 

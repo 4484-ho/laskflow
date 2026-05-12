@@ -14,7 +14,7 @@ async function main() {
   for (let i = 0; i < issues.length; i++) {
     await prisma.issue.update({
       where: { id: issues[i].id },
-      data: { sortOrder: keys[i] },
+      data: { sortOrder: keys[i] as string },
     })
   }
   console.log(`Updated ${issues.length} issues with fractional sort keys.`)

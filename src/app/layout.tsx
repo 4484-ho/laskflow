@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { QueryProvider } from '@/components/providers/QueryProvider'
+import { CommandPalette } from '@/components/CommandPalette'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -21,13 +22,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ja" className={`${geistSans.variable} ${geistMono.variable} dark`}>
-      <body className="flex h-screen overflow-hidden bg-neutral-950 text-neutral-100 antialiased">
+    <html lang="ja" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="flex h-screen overflow-hidden bg-white text-neutral-900 antialiased">
         <QueryProvider>
           <Sidebar />
           <main className="flex-1 flex flex-col overflow-hidden">
             {children}
           </main>
+          <CommandPalette />
         </QueryProvider>
       </body>
     </html>
