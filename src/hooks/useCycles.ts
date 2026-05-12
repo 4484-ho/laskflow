@@ -14,5 +14,6 @@ export function useCycles() {
   return useQuery({
     queryKey: queryKeys.cycles.list(),
     queryFn: fetchCycles,
+    staleTime: 60_000,
   })
 }

@@ -2,11 +2,10 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback } from 'react'
-import type { IssueStatus, IssuePriority } from '@/types'
+import type { IssueStatus } from '@/types'
 
 export interface IssueFilters {
   status?: IssueStatus
-  priority?: IssuePriority
   projectId?: string
   cycleId?: string
   initiativeId?: string
@@ -19,7 +18,6 @@ export function useIssueFilters(): [IssueFilters, (patch: Partial<IssueFilters>)
 
   const filters: IssueFilters = {
     status: (searchParams.get('status') as IssueStatus) || undefined,
-    priority: (searchParams.get('priority') as IssuePriority) || undefined,
     projectId: searchParams.get('projectId') || undefined,
     cycleId: searchParams.get('cycleId') || undefined,
     initiativeId: searchParams.get('initiativeId') || undefined,
@@ -33,7 +31,7 @@ export function useIssueFilters(): [IssueFilters, (patch: Partial<IssueFilters>)
         if (v) params.set(k, v)
         else params.delete(k)
       }
-      router.push(`/issues?${params.toString()}`)
+      router.replace(`/issues?${params.toString()}`)
     },
     [router, searchParams],
   )

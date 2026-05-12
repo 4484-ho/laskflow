@@ -30,7 +30,7 @@ export function CycleProgressPanel({ cycle, issues }: CycleProgressPanelProps) {
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-medium text-neutral-700">Progress</span>
         <span className="text-xs text-neutral-500">
-          {daysRemaining > 0 ? `${daysRemaining}d remaining` : `${Math.abs(daysRemaining)}d overdue`}
+          {daysRemaining >= 0 ? `${daysRemaining}d remaining` : `${Math.abs(daysRemaining)}d overdue`}
         </span>
       </div>
 

@@ -14,5 +14,6 @@ export function useProjects() {
   return useQuery({
     queryKey: queryKeys.projects.list(),
     queryFn: fetchProjects,
+    staleTime: 60_000,
   })
 }

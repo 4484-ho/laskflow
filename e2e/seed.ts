@@ -3,9 +3,13 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
 import { generateNKeysBetween } from 'fractional-indexing'
 
-const adapter = new PrismaBetterSqlite3({
-  url: `file:${path.join(process.cwd(), 'data', 'taskflow.db')}`,
-})
+// Default to a dedicated E2E DB so `pnpm test:e2e` never wipes the dev DB.
+// Allow override via DATABASE_URL for CI or alternate runners.
+const databaseUrl =
+  process.env.DATABASE_URL ??
+  `file:${path.join(process.cwd(), 'data', 'taskflow.e2e.db')}`
+
+const adapter = new PrismaBetterSqlite3({ url: databaseUrl })
 
 /** E2E 用（globalSetup / テストから DB 参照時に共有） */
 export const prisma = new PrismaClient({

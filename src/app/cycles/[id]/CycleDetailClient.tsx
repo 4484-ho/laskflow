@@ -22,13 +22,13 @@ export function CycleDetailClient({ cycle }: CycleDetailClientProps) {
   const openIssue = useCallback((id: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('selected', id)
-    router.push(`/cycles/${cycle.id}?${params.toString()}`)
+    router.replace(`/cycles/${cycle.id}?${params.toString()}`)
   }, [router, searchParams, cycle.id])
 
   const closeIssue = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString())
     params.delete('selected')
-    router.push(`/cycles/${cycle.id}?${params.toString()}`)
+    router.replace(`/cycles/${cycle.id}?${params.toString()}`)
   }, [router, searchParams, cycle.id])
 
   return (

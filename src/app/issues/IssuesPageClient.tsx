@@ -24,13 +24,13 @@ export function IssuesPageClient() {
   const openIssue = useCallback((id: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('selected', id)
-    router.push(`/issues?${params.toString()}`)
+    router.replace(`/issues?${params.toString()}`)
   }, [router, searchParams])
 
   const closeIssue = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString())
     params.delete('selected')
-    router.push(`/issues?${params.toString()}`)
+    router.replace(`/issues?${params.toString()}`)
   }, [router, searchParams])
 
   return (

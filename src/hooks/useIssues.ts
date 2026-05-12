@@ -75,6 +75,7 @@ export function useIssue(id: string | undefined) {
     queryKey: id ? queryKeys.issues.detail(id) : ['issues', 'detail', 'disabled'],
     queryFn: () => fetchIssue(id as string),
     enabled: Boolean(id),
+    retry: false,
   })
 }
 
@@ -95,16 +96,17 @@ export function useUpdateIssue() {
       patchIssue(id, data),
     onMutate: async ({ id, data }) => {
       await qc.cancelQueries({ queryKey: queryKeys.issues.all })
-      const previous = qc.getQueriesData<Issue[]>({ queryKey: queryKeys.issues.all })
-      // setQueriesData matches both list and detail caches under queryKeys.issues.all.
-      // Array.isArray guard ensures detail entries (single Issue) are skipped safely.
-      // Detail cache optimistic update is deferred to Phase 2b (slideover implementation).
+      const previous = qc.getQueriesData<Issue[] | Issue>({ queryKey: queryKeys.issues.all })
       qc.setQueriesData<Issue[]>(
         { queryKey: queryKeys.issues.all },
         (old) =>
           Array.isArray(old)
             ? old.map((i) => (i.id === id ? { ...i, ...(data as Partial<Issue>) } : i))
             : old,
+      )
+      qc.setQueryData<Issue>(
+        queryKeys.issues.detail(id),
+        (old) => (old ? { ...old, ...(data as Partial<Issue>) } : old),
       )
       return { previous }
     },

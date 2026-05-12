@@ -21,13 +21,13 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
   const openIssue = useCallback((id: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('selected', id)
-    router.push(`/projects/${project.id}?${params.toString()}`)
+    router.replace(`/projects/${project.id}?${params.toString()}`)
   }, [router, searchParams, project.id])
 
   const closeIssue = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString())
     params.delete('selected')
-    router.push(`/projects/${project.id}?${params.toString()}`)
+    router.replace(`/projects/${project.id}?${params.toString()}`)
   }, [router, searchParams, project.id])
 
   return (

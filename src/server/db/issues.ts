@@ -30,6 +30,18 @@ function parseIssueWithChildren(raw: PrismaIssueWithChildren): Issue {
   }
 }
 
+// Severity-ordered priority: urgent (most urgent) → none (least). Used to sort
+// in memory because `priority` is stored as a string in SQLite — `ORDER BY` on
+// the column would yield alphabetical order (high < low < medium < none <
+// urgent), which is not what users expect.
+const PRIORITY_RANK: Record<IssuePriority, number> = {
+  urgent: 0,
+  high: 1,
+  medium: 2,
+  low: 3,
+  none: 4,
+}
+
 export async function getIssues(params: GetIssuesParams = {}): Promise<Issue[]> {
   const where: Record<string, unknown> = {}
   if (params.status) where.status = params.status
@@ -46,11 +58,17 @@ export async function getIssues(params: GetIssuesParams = {}): Promise<Issue[]> 
     sort === 'sortOrder'
       ? [{ sortOrder: 'asc' as const }, { createdAt: 'desc' as const }]
       : sort === 'priority'
-      ? [{ priority: 'asc' as const }, { createdAt: 'desc' as const }]
+      ? [{ createdAt: 'desc' as const }]
       : [{ [sort]: 'desc' as const }]
 
   const issues = await prisma.issue.findMany({ where, orderBy })
-  return issues.map(parseIssue)
+  const parsed = issues.map(parseIssue)
+
+  if (sort === 'priority') {
+    parsed.sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority])
+  }
+
+  return parsed
 }
 
 export async function getIssue(id: string): Promise<Issue | null> {

@@ -14,5 +14,6 @@ export function useInitiatives() {
   return useQuery({
     queryKey: queryKeys.initiatives.list(),
     queryFn: fetchInitiatives,
+    staleTime: 60_000,
   })
 }

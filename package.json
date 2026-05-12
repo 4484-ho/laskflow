@@ -11,7 +11,8 @@
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "migrate:sort-order": "tsx scripts/migrate-sort-order.ts",
-    "test:e2e": "playwright test --config=e2e/playwright.config.ts"
+    "test:e2e:prepare": "DATABASE_URL=\"file:./data/taskflow.e2e.db\" prisma db push --skip-generate --accept-data-loss",
+    "test:e2e": "pnpm test:e2e:prepare && playwright test --config=e2e/playwright.config.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

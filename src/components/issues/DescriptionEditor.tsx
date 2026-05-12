@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import '@mdxeditor/editor/style.css'
 
@@ -35,7 +35,12 @@ interface DescriptionEditorProps {
 }
 
 export function DescriptionEditor({ initialValue, onSave }: DescriptionEditorProps) {
-  const currentMarkdown = useRef(initialValue ?? '')
+  // Freeze the initial value on first mount via lazy useState. MDXEditor
+  // receives `markdown` as a controlled prop, so re-renders from
+  // refetch/invalidation would otherwise overwrite in-progress edits. Remount
+  // via `key={issue.id}` to reset.
+  const [initial] = useState(() => initialValue ?? '')
+  const currentMarkdown = useRef(initial)
 
   return (
     <div
@@ -47,7 +52,7 @@ export function DescriptionEditor({ initialValue, onSave }: DescriptionEditorPro
       }}
     >
       <MDXEditor
-        markdown={initialValue ?? ''}
+        markdown={initial}
         onChange={(val) => { currentMarkdown.current = val }}
       />
     </div>

@@ -14,14 +14,21 @@ interface IssueDetailSlideoverProps {
 }
 
 function IssueDetailPanel({ issue, onClose }: { issue: Issue; onClose: () => void }) {
-  const [localTitle, setLocalTitle] = useState(issue.title)
+  // Derived-state title editor: `draft` holds in-progress edits, otherwise we
+  // render `issue.title` directly. External updates to `issue.title` (refetch,
+  // optimistic rollback, another tab) are picked up automatically — no useEffect
+  // sync, no overwrite of unsaved input.
+  const [draft, setDraft] = useState<string | null>(null)
   const { mutate: updateIssue } = useUpdateIssue()
+  const displayTitle = draft ?? issue.title
 
   const saveTitle = () => {
-    const val = localTitle.trim()
+    if (draft === null) return
+    const val = draft.trim()
     if (val && val !== issue.title) {
       updateIssue({ id: issue.id, data: { title: val } })
     }
+    setDraft(null)
   }
 
   return (
@@ -35,8 +42,8 @@ function IssueDetailPanel({ issue, onClose }: { issue: Issue; onClose: () => voi
         <div className="flex items-center gap-3 px-4 py-3 border-b border-neutral-200 shrink-0 bg-white">
           <span className="text-xs font-mono text-neutral-500">{issue.identifier}</span>
           <input
-            value={localTitle}
-            onChange={(e) => setLocalTitle(e.target.value)}
+            value={displayTitle}
+            onChange={(e) => setDraft(e.target.value)}
             onBlur={saveTitle}
             onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
             className="flex-1 bg-transparent text-sm font-medium text-neutral-900 outline-none"
@@ -66,13 +73,36 @@ function IssueDetailPanel({ issue, onClose }: { issue: Issue; onClose: () => voi
 }
 
 export function IssueDetailSlideover({ issueId, onClose }: IssueDetailSlideoverProps) {
-  const { data: issue, isLoading } = useIssue(issueId)
+  const { data: issue, isLoading, isError } = useIssue(issueId)
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
+
+  // Auto-close if the issue can't be loaded (e.g. ?selected= references a deleted
+  // or unknown id). Drops the stale URL param so reloads don't reopen the broken
+  // panel.
+  useEffect(() => {
+    if (isError) onClose()
+  }, [isError, onClose])
+
+  if (isError) {
+    return (
+      <aside
+        aria-label="Issue detail"
+        className="fixed right-0 top-0 bottom-0 z-50 w-[600px] flex flex-col border-l border-neutral-200 bg-white shadow-2xl"
+      >
+        <div className="flex items-center justify-between p-4 border-b border-neutral-200">
+          <span className="text-sm text-red-600">Issue not found</span>
+          <button onClick={onClose} aria-label="Close" className="text-neutral-500 hover:text-neutral-900">
+            <X size={16} />
+          </button>
+        </div>
+      </aside>
+    )
+  }
 
   if (isLoading || !issue) {
     return (
